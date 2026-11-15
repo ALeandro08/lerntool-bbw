@@ -458,6 +458,20 @@ svg circle.cp,svg circle.cn{stroke:rgba(0,0,0,.28);stroke-width:.6}
   .hmeta{width:100%}
   .hchip{margin-left:auto}
 }
+/* ---------- Mathe: Langsam erklärt ---------- */
+.mwhy{margin:var(--s2) 0;font:500 var(--t-m)/1.5 var(--f-read)}
+.mrecipe{margin:var(--s1) 0 0;padding-left:1.4em;font:var(--t-s)/1.6 var(--f-ui)}
+.mrecipe li{margin-bottom:var(--s1)}
+.mex{padding:var(--s3);border-radius:var(--r-ctl);background:var(--sunken)}
+.mtask{font-size:var(--t-l)}
+.msteps{margin:var(--s2) 0 var(--s3);padding-left:1.4em;font:var(--t-s)/1.55 var(--f-ui)}
+.msteps li{margin-bottom:var(--s3);padding-left:var(--s1)}
+.mres{margin-top:var(--s1);font-size:var(--t-m);overflow-x:auto}
+.mtrap{margin:var(--s3) 0 0;padding:var(--s2) var(--s3);border-radius:var(--r-ctl);background:var(--warn-bg);font:var(--t-s)/1.5 var(--f-ui)}
+.mslow{margin:var(--s2) 0 var(--s3);padding:var(--s2) var(--s3);border:1px solid var(--line);border-radius:var(--r-ctl)}
+.mslow>summary{cursor:pointer;font:600 var(--t-s)/1.5 var(--f-ui);color:var(--accent-text)}
+.mslowbox .subtabs{margin-top:var(--s2)}
+
 /* ---------- Mathe: Wochenend-Plan ---------- */
 .wweak{margin:var(--s3) 0 0;padding:var(--s2) var(--s3);border-radius:var(--r-ctl);background:var(--warn-bg);color:var(--ink);font:var(--t-s)/1.5 var(--f-ui)}
 .wday{margin:var(--s4) 0 var(--s1);font:700 var(--t-m)/1.3 var(--f-head)}
@@ -1420,6 +1434,78 @@ function viewMathEx(v){
   $('#mTrain').onclick = () => openEx('mtrainer');
 }
 
+/* ---------- Mathe: Langsam erklärt (Schritt für Schritt) ---------- */
+// Jeder Schritt: [Erklärung, Term nach dem Schritt oder null]. Jeder Term ist gleich wie die Aufgabe (geprüft).
+const MSTEP = {
+  binom:{why:'Eine Klammer hoch 2 heisst: die Klammer mal sich selbst. Statt jedes Mal alles auszumultiplizieren, nimmst du ein fertiges Muster.',
+    f:['(a+b)^2 = a^2+2ab+b^2', '(a-b)^2 = a^2-2ab+b^2', '(a+b)(a-b) = a^2-b^2'],
+    recipe:['Schau in die Klammer: Steht dort ein Plus oder ein Minus?', 'Bestimme a (das Erste in der Klammer) und b (das Zweite).', 'Schreib zuerst a², dann 2·a·b mit dem Vorzeichen aus der Klammer, dann b².', 'Bei (a + b)(a − b) fällt das Mittelglied weg: Es bleibt nur a² − b².'],
+    ex:[{q:'(3x+2)^2', steps:[['Plus in der Klammer, also das Muster a² + 2ab + b². Hier ist a = 3x und b = 2.', '(3x)^2+2*3x*2+2^2'], ['Jedes Stück ausrechnen: (3x)² = 9x², 2 · 3x · 2 = 12x und 2² = 4.', '9x^2+12x+4']]},
+        {q:'(5a-4b)^2', steps:[['Minus in der Klammer, also a² − 2ab + b². Hier ist a = 5a und b = 4b.', '(5a)^2-2*5a*4b+(4b)^2'], ['Ausrechnen: (5a)² = 25a², 2 · 5a · 4b = 40ab und (4b)² = 16b².', '25a^2-40ab+16b^2']]},
+        {q:'(2x+7)(2x-7)', steps:[['Zweimal dieselben Teile, einmal mit Plus und einmal mit Minus: das Muster a² − b². Hier ist a = 2x und b = 7.', '(2x)^2-7^2'], ['Ausrechnen: (2x)² = 4x² und 7² = 49.', '4x^2-49']]}],
+    trap:'(a + b)² ist NICHT a² + b². Das Mittelglied 2ab wird am häufigsten vergessen.'},
+  ausklammern:{why:'Ausklammern ist das Gegenteil von Ausmultiplizieren. Du suchst, was in jedem Summanden drinsteckt, und stellst es vor die Klammer.',
+    recipe:['Zahlen: Welche grösste Zahl teilt alle Zahlen?', 'Buchstaben: Kommt der Buchstabe in jedem Summanden vor? Dann nimm ihn mit der kleinsten Hochzahl.', 'Schreib dieses Gemeinsame vor die Klammer.', 'Teile jeden Summanden durch das Gemeinsame. Was übrig bleibt, kommt in die Klammer.', 'Kontrolle: Multiplizier wieder aus. Kommt die Aufgabe heraus?'],
+    ex:[{q:'6x^2y-9xy^2', steps:[['Zahlen 6 und 9: Beide sind durch 3 teilbar. x steckt in beiden, y auch. Gemeinsam ist also 3xy.', null], ['Teilen: 6x²y : 3xy = 2x und 9xy² : 3xy = 3y. Das kommt in die Klammer.', '3xy(2x-3y)']]},
+        {q:'-4a+8b', steps:[['Vorne steht ein Minus. Dann klammerst du die Zahl mit dem Minus aus, also −4.', null], ['Teilen: −4a : (−4) = a und 8b : (−4) = −2b.', '-4(a-2b)']]},
+        {q:'x(a+b)+2(a+b)', steps:[['(a + b) steckt in beiden Teilen. Behandle die ganze Klammer wie einen einzigen Buchstaben.', null], ['(a + b) nach vorne, in die zweite Klammer kommt, was übrig bleibt: x und 2.', '(a+b)(x+2)']]}],
+    trap:'Klammerst du einen ganzen Summanden aus, bleibt eine 1 stehen: 3x + 3 = 3(x + 1), nicht 3x.'},
+  diff:{why:'Zwei Quadrate mit einem Minus dazwischen lassen sich immer in zwei Klammern zerlegen: eine mit Plus, eine mit Minus.',
+    f:['a^2-b^2 = (a+b)(a-b)'],
+    recipe:['Gibt es einen gemeinsamen Faktor? Den immer zuerst ausklammern.', 'Prüfe: zwei Teile, Minus dazwischen, und beide sind Quadrate?', 'Zieh aus beiden die Wurzel. Das ergibt a und b.', 'Schreib (a + b)(a − b).'],
+    ex:[{q:'9x^2-25', steps:[['9x² = (3x)² und 25 = 5². Also ist a = 3x und b = 5.', '(3x)^2-5^2'], ['Ins Muster einsetzen: (a + b)(a − b).', '(3x+5)(3x-5)']]},
+        {q:'2a^2-18', steps:[['2 und 18 sind beide durch 2 teilbar. Zuerst 2 ausklammern.', '2(a^2-9)'], ['In der Klammer steht a² − 9 = a² − 3². Also ist a = a und b = 3.', '2(a+3)(a-3)']]}],
+    trap:'a² + b² (mit Plus) lässt sich so NICHT zerlegen. Das geht nur mit Minus.'},
+  quad:{why:'Du suchst zwei Zahlen m und n: Mal gerechnet ergeben sie die Zahl ohne x (c), zusammengezählt ergeben sie die Zahl vor dem x (b). Darum gilt die Formel unten.',
+    f:['x^2+(m+n)x+mn = (x+m)(x+n)'],
+    recipe:['Steht vor x² eine Zahl? Dann zuerst diese Zahl ausklammern.', 'Lies b (die Zahl vor dem x) und c (die Zahl ohne x) ab, mit Vorzeichen.', 'Schreib alle Zahlenpaare auf, die mal gerechnet c ergeben.', 'Nimm das Paar, das zusammengezählt b ergibt.', 'Schreib (x + erste Zahl)(x + zweite Zahl). Ist eine Zahl negativ, wird aus dem Plus ein Minus.'],
+    ex:[{q:'x^2+7x+12', steps:[['b = 7 und c = 12.', null], ['Paare, die mal gerechnet 12 ergeben: 1 und 12, 2 und 6, 3 und 4. Nur 3 + 4 ergibt 7.', null], ['Die zwei Zahlen sind 3 und 4.', '(x+3)(x+4)']]},
+        {q:'x^2-2x-15', steps:[['b = −2 und c = −15. Weil c negativ ist, ist eine Zahl positiv und eine negativ.', null], ['Gesucht: mal gerechnet −15, zusammen −2. Das sind 3 und −5, denn 3 · (−5) = −15 und 3 + (−5) = −2.', null], ['Einsetzen: (x + 3) und (x − 5).', '(x+3)(x-5)']]},
+        {q:'2x^2+6x-20', steps:[['Vor x² steht eine 2. Zuerst 2 ausklammern.', '2(x^2+3x-10)'], ['In der Klammer: mal gerechnet −10, zusammen 3. Das sind 5 und −2.', '2(x+5)(x-2)']]}],
+    trap:'Kontrollier immer, indem du die Klammern wieder ausmultiplizierst. Ein falsches Vorzeichen fällt so sofort auf.'},
+  kuerzen:{why:'Kürzen darfst du nur Faktoren, also Teile, die mit Mal verbunden sind. Darum zerlegst du zuerst Zähler und Nenner in Produkte.',
+    recipe:['Zähler faktorisieren: ausklammern, binomische Formel, a² − b² oder x² + bx + c.', 'Nenner genauso faktorisieren.', 'Gleiche Klammern oben und unten durchstreichen.', 'Achtung: (b − a) = −(a − b). So machst du aus «fast gleichen» Klammern gleiche.'],
+    ex:[{q:'(x^2-9)/(x^2+3x)', steps:[['Zähler: x² − 9 = (x + 3)(x − 3).', '((x+3)(x-3))/(x^2+3x)'], ['Nenner: x ausklammern ergibt x(x + 3).', '((x+3)(x-3))/(x(x+3))'], ['(x + 3) steht oben und unten. Durchstreichen.', '(x-3)/x']]},
+        {q:'(4a-4b)/(b^2-a^2)', steps:[['Zähler: 4 ausklammern.', '(4(a-b))/(b^2-a^2)'], ['Nenner: b² − a² = (b + a)(b − a).', '(4(a-b))/((b+a)(b-a))'], ['Oben steht (a − b), unten (b − a). Es gilt (b − a) = −(a − b). Das Minus kommt vor den Bruch.', '-(4(a-b))/((a+b)(a-b))'], ['Jetzt (a − b) oben und unten durchstreichen.', '-4/(a+b)']]}],
+    trap:'Aus einer Summe darfst du nicht kürzen: (x + 3) / 3 ist NICHT x + 1.'},
+  addieren:{why:'Brüche addierst du nur mit gleichem Nenner. Diesen gemeinsamen Nenner (Hauptnenner) baust du aus den Faktoren aller Nenner.',
+    recipe:['Alle Nenner faktorisieren.', 'Hauptnenner: Nimm jeden Faktor so oft, wie er höchstens in einem Nenner vorkommt.', 'Erweitere jeden Bruch oben und unten mit dem, was ihm zum Hauptnenner fehlt.', 'Alles auf einen Bruchstrich, ausmultiplizieren und zusammenfassen. Ein Minus vor einem Bruch gilt für den ganzen Zähler.', 'Am Schluss prüfen: Lässt sich noch kürzen?'],
+    ex:[{q:'3/(4x)+5/(6x^2)', steps:[['Nenner zerlegen: 4x = 2 · 2 · x und 6x² = 2 · 3 · x · x. Hauptnenner: 2 · 2 · 3 · x · x = 12x².', null], ['Dem ersten Bruch fehlt 3x, dem zweiten fehlt 2. Damit erweitern.', '(3*3x)/(12x^2)+(5*2)/(12x^2)'], ['Zähler zusammenzählen: 9x + 10.', '(9x+10)/(12x^2)']]},
+        {q:'2/(x-1)-1/(x+1)', steps:[['Die Nenner sind schon Faktoren. Hauptnenner: (x − 1)(x + 1).', null], ['Den ersten Bruch mit (x + 1) erweitern, den zweiten mit (x − 1).', '(2(x+1))/((x-1)(x+1))-(x-1)/((x-1)(x+1))'], ['Auf einen Bruchstrich. Das Minus gilt für die ganze Klammer (x − 1).', '(2(x+1)-(x-1))/((x-1)(x+1))'], ['Ausmultiplizieren: 2x + 2 − x + 1 = x + 3.', '(x+3)/((x-1)(x+1))']]}],
+    trap:'Nie Zähler plus Zähler durch Nenner plus Nenner rechnen. Und vergiss nicht: Das Minus vor einem Bruch dreht alle Vorzeichen im Zähler um.'}
+};
+const MLABEL = {binom:'Binomische Formeln', ausklammern:'Ausklammern', diff:'a² − b²', quad:'x² + bx + c', kuerzen:'Kürzen', addieren:'Brüche addieren'};
+// Welche Methode zu welcher Aufgabe passt
+const MSET_M = {b1:['binom'], a17:['binom'], a18:['binom'], a19:['binom'], f12:['ausklammern'], a20:['ausklammern'], a21:['ausklammern'], a22:['ausklammern'],
+  f34:['diff','quad'], a23:['diff'], a24:['quad'], a25:['binom','diff'], a26:['quad'], a27:['ausklammern','diff','quad'],
+  d1:['kuerzen'], a28:['kuerzen'], a29:['kuerzen'], a30:['kuerzen'], kgv:['addieren'], a31:['addieren'], add1:['addieren'], a32:['addieren'], a33:['addieren']};
+function mStepHtml(id, exI){
+  const T = MSTEP[id], n = T.ex.length, k = exI % n, E = T.ex[k];
+  return '<div class="mstep" data-ms="' + id + '" data-ex="' + k + '"><p class="mwhy">' + esc(T.why) + '</p>'
+    + (T.f ? '<div class="formelbox">' + T.f.map(x => M(x)).join('<br>') + '</div>' : '')
+    + '<h4>So gehst du vor</h4><ol class="mrecipe">' + T.recipe.map(r => '<li>' + esc(r) + '</li>').join('') + '</ol>'
+    + '<h4>Beispiel ' + (k+1) + ' von ' + n + '</h4><div class="mex"><div class="mtask">' + M(E.q) + '</div><ol class="msteps">'
+    + E.steps.map(st => '<li hidden><span>' + esc(st[0]) + '</span>' + (st[1] ? '<div class="mres">= ' + M(st[1]) + '</div>' : '') + '</li>').join('') + '</ol>'
+    + '<p class="mdone fb ok" hidden>Fertig. Versuch jetzt eine Aufgabe selbst.</p>'
+    + '<div class="row"><button class="btn" type="button" data-msnext>Ersten Schritt zeigen</button>' + (n > 1 ? '<button class="btn ghost" type="button" data-msother>Anderes Beispiel</button>' : '') + '</div></div>'
+    + '<p class="mtrap"><b>Typischer Fehler:</b> ' + esc(T.trap) + '</p></div>';
+}
+const mSlowInner = (ids, id, ex) => (ids.length > 1 ? '<div class="subtabs">' + ids.map(x => '<button class="chip' + (x===id ? ' on' : '') + '" type="button" data-msel="' + x + '">' + esc(MLABEL[x]) + '</button>').join('') + '</div>' : '') + mStepHtml(id, ex);
+const mSlow = ids => '<div class="mslowbox" data-ids="' + ids.join(',') + '">' + mSlowInner(ids, ids[0], 0) + '</div>';
+function mSlowBind(root){
+  root.querySelectorAll('.mslowbox').forEach(box => box.onclick = ev => {
+    const b = ev.target.closest('button'); if(!b) return;
+    const ids = box.dataset.ids.split(','), st = box.querySelector('.mstep');
+    if(b.dataset.msel){ box.innerHTML = mSlowInner(ids, b.dataset.msel, 0); return; }
+    if(b.hasAttribute('data-msother')){ box.innerHTML = mSlowInner(ids, st.dataset.ms, +st.dataset.ex + 1); return; }
+    if(b.hasAttribute('data-msnext')){
+      const li = st.querySelector('.msteps li[hidden]'); if(li) li.hidden = false;
+      const left = st.querySelectorAll('.msteps li[hidden]').length;
+      if(left){ b.textContent = 'Nächster Schritt'; } else { b.disabled = true; b.textContent = 'Alle Schritte gezeigt'; st.querySelector('.mdone').hidden = false; }
+    }
+  });
+}
+
 function viewMathSet(v, i){
   const set = MSETS[i], last = i===MSETS.length-1;
   const ok = new Set((store.get('mscores',{})[set.id] || {ok:[]}).ok);
@@ -1428,10 +1514,11 @@ function viewMathSet(v, i){
       <button class="btn ghost" id="back">← Alle Aufgaben</button><span class="muted">${i+1} von ${MSETS.length}</span></div>
     <div class="progress" style="margin-bottom:var(--s3)"><i style="width:${(i+1)/MSETS.length*100}%"></i></div>
     <div class="card ex"><div class="meta">${esc(set.topic)} · Skript S. ${set.page}</div><h3>${esc(set.title)}</h3>
-      <p class="muted">${esc(set.intro)}</p><div class="mrows"></div>
+      <p class="muted">${esc(set.intro)}</p>${MSET_M[set.id] ? `<details class="mslow"><summary>Langsam erklärt: So löst du das</summary>${mSlow(MSET_M[set.id])}</details>` : ''}<div class="mrows"></div>
       <div class="row" style="margin-top:var(--s3)"><button class="btn" id="all">Alle prüfen</button><span class="score badge" id="msc"></span></div></div>
     <div class="row" style="justify-content:space-between"><button class="btn ghost" id="prev" ${i?'':'disabled'}>← Vorherige</button>
       <button class="btn" id="next">${last?'Zur Übersicht':'Nächste →'}</button></div>`;
+  mSlowBind(v);
   const box = v.querySelector('.mrows');
   const showScore = () => { const n = set.items.length, p = ok.size/n; const e = $('#msc');
     e.className = 'score badge '+(p===1?'good':p>=.5?'mid':'low'); e.textContent = p===1 ? `${ok.size} / ${n} · Perfekt!` : `${ok.size} / ${n} richtig`; };
@@ -3859,7 +3946,7 @@ function viewOverview(v, s){
 function viewTheory(v, s){
   if(s.id==='bn'){ v.innerHTML = chTheory().map(t => `<div class="card"><h3>${esc(t.t)}</h3>${t.h}</div>`).join(''); v.querySelectorAll('[data-lab]').forEach(b => b.onclick = () => goLab(b.dataset.lab)); return; }
   if(s.id==='m162'){ v.innerHTML = m162Theory().map(t => `<div class="card"><h3>${esc(t.t)}</h3>${t.h}</div>`).join(''); return; }
-  if(s.id==='bm'){ v.innerHTML = mathTheory().map(t => `<div class="card"><h3>${esc(t.t)}</h3>${t.h}</div>`).join(''); return; }
+  if(s.id==='bm'){ v.innerHTML = `<div class="card"><h3>Langsam erklärt</h3><p class="muted">Wähl eine Methode. Lies zuerst das Rezept, dann deck das Beispiel Schritt für Schritt auf.</p>${mSlow(['binom','ausklammern','diff','quad','kuerzen','addieren'])}</div>` + mathTheory().map(t => `<div class="card"><h3>${esc(t.t)}</h3>${t.h}</div>`).join(''); mSlowBind(v); return; }
   if(s.id!=='bw'){ v.innerHTML = `<div class="card empty">Noch keine Theorie für dieses Fach. Nutze vorerst die Notizen.</div>`; return; }
   v.innerHTML = BW.theory.map(t => `<div class="card"><h3>${esc(t.t)}</h3>${t.h}</div>`).join('');
 }
