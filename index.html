@@ -472,6 +472,17 @@ svg circle.cp,svg circle.cn{stroke:rgba(0,0,0,.28);stroke-width:.6}
   .hchip{margin-left:auto}
 }
 
+/* ---------- Modul 319 ---------- */
+.m319code{margin:var(--s2) 0 0;padding:var(--s2) var(--s3);border-radius:var(--r-ctl);background:var(--sunken);font:var(--t-xs)/1.5 var(--f-mono);white-space:pre;overflow-x:auto}
+.m319ok{color:var(--ok)}
+.m319sp{padding:var(--s2) 0;border-top:1px solid var(--line)}
+.m319esel{margin:0;font:italic var(--t-s)/1.5 var(--f-ui);color:var(--accent-text)}
+.m319chat{display:flex;flex-direction:column;gap:var(--s2)}
+.m319b,.m319u{max-width:85%;padding:var(--s2) var(--s3);border-radius:var(--r-card);font:var(--t-s)/1.5 var(--f-ui);overflow-wrap:anywhere;white-space:pre-wrap}
+.m319b{align-self:flex-start;background:var(--sunken)}
+.m319u{align-self:flex-end;background:var(--accent-fill);color:#fff}
+[data-design="studio"] .m319u{color:#161614}
+
 /* ---------- Streak, Rangliste, Duell ---------- */
 .actrow{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s3)}
 .actflame{position:relative;width:56px;height:56px;flex:none;display:grid;place-items:center;color:var(--line-strong)}
@@ -1795,6 +1806,400 @@ function bankBW(){
       ans:tot, tol:0.006, unit:'Punkte', x:`${crit.map((c,j) => `${p[j]} × ${ws[j]/100}`).join(' + ')} = <b>${fmt(tot)}</b>`}; }});
   addCardQs(B, BW.cards, T.b);
   return {topics:Object.values(T), bank:B};
+}
+/* ---------- Modul 319: Java-Grundlagen (TBZ) ---------- */
+const M319_KN = [[1,'Java-Grundlagen'],[2,'Variablen und Datentypen'],[3,'Entscheidungen und Activity-Diagramme'],[4,'Sauberer Code'],[5,'Fehler und Debugging'],[6,'Schleifen'],[7,'Arrays und Strings'],[8,'Methoden, EVA und Datenstrukturen']];
+const m319T = kn => 'KN0' + kn + ' ' + M319_KN[kn-1][1];
+// Lernziel: [ID, Lernziel, Gesprächsfrage, [[Begriffe, Nachfrage], …], Musterantwort, Spick, Eselsbrücke]
+// Begriffe: Teile mit & müssen alle vorkommen, jeder Teil ist ein regulärer Ausdruck (ohne Gross-/Kleinschreibung)
+const M319_G = [
+['KN01a','Ich kann eine IDE mit KI-Unterstützung einrichten und ein Java-Programm darin anlegen und ausführen.','Wie richtest du deine IDE mit KI-Unterstützung ein, und wie legst du darin ein Java-Programm an und startest es?',
+ [['jdk|java development kit|java install','Was musst du installieren, damit die IDE Java überhaupt übersetzen kann?'],['\\bki\\b|copilot|plugin|erweiterung|extension|assistent|\\bai\\b','Wie kommt die KI-Unterstützung in deine IDE?'],['projekt|klasse|class','Was legst du in der IDE an, bevor du Code schreibst?'],['aus(zu)?f[üu]hr|\\brun\\b|start','Wie startest du das Programm in der IDE?']],
+ 'Ich installiere ein JDK und eine IDE wie IntelliJ oder VS Code mit einem KI-Plugin wie Copilot. Dann lege ich ein Projekt mit einer Klasse und einer main-Methode an und starte es mit Run.',
+ 'JDK installieren, IDE mit KI-Plugin, Projekt anlegen, Klasse mit main, Run.','Werkzeug, Werkbank, Helfer: JDK, IDE, KI.'],
+['KN01b','Ich kann den Aufbau eines Java-Programms erklären: package, import, class und die main-Methode.','Erkläre den Aufbau eines Java-Programms: Wozu dienen package, import, class und die main-Methode?',
+ [['package|paket&ordner|gruppier|ordn|sortier|struktur','Was bewirkt die package-Zeile genau? Wofür braucht man Pakete?'],['import&andere|fremd|bibliothek|verf[üu]gbar|nutz|verwend|einbind|scanner','Was bewirkt eine import-Zeile?'],['klasse|class&enth[äa]lt|beh[äa]lter|rahmen|bauplan|h[üu]lle|darin|drin|steht','Was ist die Klasse, und was steht in ihr?'],['main&start|einstieg|beginn|zuerst|anfang','Was ist besonders an der main-Methode?']],
+ 'package ordnet die Klasse in einen Ordner, also ein Paket, ein. import macht Klassen aus anderen Paketen verfügbar, zum Beispiel Scanner. class ist der Rahmen, in dem der ganze Code steht, und main ist die Methode, bei der das Programm startet.',
+ 'package = Ordner, import = fremde Klassen holen, class = Rahmen, main = Start.','Von aussen nach innen: Paket, Import, Klasse, main.'],
+['KN01c','Ich kann erklären, dass public static void main(String[] args) der Einstiegspunkt ist, und was beim Umbenennen von main passiert.','Welche Rolle hat die Zeile public static void main(String[] args), und was passiert, wenn du main umbenennst?',
+ [['einstieg|start|beginn|zuerst|anfang','Was macht die JVM mit genau dieser Zeile?'],['jvm|virtual machine|java sucht|sucht','Wer sucht beim Programmstart nach dieser Methode?'],['nicht gefunden|findet|fehler|nicht start|startet nicht|l[äa]uft nicht','Was passiert konkret, wenn main anders heisst?'],['kompil|compil|übersetz','Merkt das schon der Compiler, oder erst die JVM beim Starten?']],
+ 'Die JVM sucht beim Start genau die Methode public static void main(String[] args) und beginnt dort. Heisst sie anders, kompiliert der Code zwar, aber beim Start kommt der Fehler, dass keine main-Methode gefunden wurde, weil der Einstiegspunkt fehlt.',
+ 'main = Eingangstür. Falscher Name: kompiliert, startet aber nicht.','Ohne Haupteingang kommt niemand ins Haus.'],
+['KN01d','Ich kann begründen, warum Datei- und Klassenname übereinstimmen müssen.','Warum müssen Datei- und Klassenname übereinstimmen?',
+ [['compiler|javac|kompil|übersetz','Wer beschwert sich, wenn die Namen nicht passen?'],['find|such|zuordn|\\.class','Warum braucht Java den gleichen Namen? Was muss es finden können?'],['public','Gilt die Regel für jede Klasse oder für eine bestimmte Art von Klasse?']],
+ 'Eine public-Klasse muss so heissen wie ihre Datei, sonst meldet der Compiler einen Fehler. So findet Java zu jedem Klassennamen die passende Datei und erzeugt die passende .class-Datei.',
+ 'public class Hallo steht in Hallo.java und wird zu Hallo.class.','Klingelschild gleich Hausname, sonst findet der Postbote dich nicht.'],
+['KN01e','Ich kann den Weg von der .java-Datei zur Ausführung erklären (Compiler, Byte-Code, JVM) und ein Programm ausserhalb der IDE ausführen.','Beschreibe den Weg von der .java-Datei bis zur Ausführung. Wie startest du ein Programm ohne IDE?',
+ [['compiler|javac|kompil|übersetz','Was passiert als Erstes mit der .java-Datei?'],['byte.?code|\\.class|class-datei','Was erzeugt der Compiler?'],['jvm|virtual machine|virtuelle maschine','Wer führt den Byte-Code aus?'],['terminal|konsole|kommandozeile|cmd|befehl|java hallo|javac \\w','Welche Befehle tippst du ausserhalb der IDE ein?']],
+ 'javac übersetzt die .java-Datei in Byte-Code, also eine .class-Datei. Die JVM führt diesen Byte-Code aus und übersetzt ihn für das jeweilige System. Ohne IDE tippe ich im Terminal javac Hallo.java und danach java Hallo.',
+ '.java, dann javac, dann .class (Byte-Code), dann JVM. Terminal: javac Hallo.java, java Hallo.','Rezept (.java), vorkochen (javac), Fertiggericht (.class), Mikrowelle (JVM) auf jedem Herd.'],
+['KN01f','Ich kann den Unterschied zwischen JDK und JRE erklären.','Was ist der Unterschied zwischen JDK und JRE?',
+ [['jre&aus(zu)?f[üu]hr|laufen|laufzeit|start','Wofür reicht das JRE?'],['jdk&entwickl|compiler|javac|programmier|werkzeug|tools','Was hat das JDK zusätzlich?'],['jvm|enth[äa]lt|beinhaltet|teil|mehr als','Wie hängen die beiden zusammen? Steckt das eine im anderen?']],
+ 'Das JRE enthält die JVM und alles, um Java-Programme auszuführen. Das JDK enthält das JRE plus Entwicklungswerkzeuge wie den Compiler javac. Zum Programmieren braucht man das JDK.',
+ 'JDK = JRE + Werkzeuge wie javac. JRE = JVM + Bibliotheken.','D wie Developer, R wie Run.'],
+
+['KN02a','Ich kann Variablen deklarieren, initialisieren und verwenden und die Begriffe unterscheiden.','Was ist der Unterschied zwischen Deklarieren, Initialisieren und Verwenden einer Variable? Zeig es an einem Beispiel.',
+ [['deklar&typ|name|anleg|erstell|festleg','Was passiert beim Deklarieren genau?'],['initiali&wert|zuweis|erste','Was passiert beim Initialisieren?'],['verwend|benutz|lesen|ausgeb|rechn|println','Was heisst es, eine Variable zu verwenden?'],['\\bint\\b|double|string','Kannst du ein Beispiel in Java-Code geben?']],
+ 'Deklarieren legt Typ und Name fest, zum Beispiel int alter;. Initialisieren gibt den ersten Wert, also alter = 17;. Verwenden heisst, den Wert zu lesen oder zu ändern, etwa mit System.out.println(alter);.',
+ 'int x; deklariert, x = 5; initialisiert, println(x) verwendet.','Schachtel beschriften, Ding hineinlegen, Ding benutzen.'],
+['KN02b','Ich kann Konstanten (final) definieren und den Unterschied zu Variablen erklären.','Wie definierst du eine Konstante, und was ist der Unterschied zu einer Variable?',
+ [['final','Mit welchem Schlüsselwort machst du eine Konstante?'],['nicht (mehr )?(ge)?[äa]nder|unver[äa]nder|einmal|nicht neu','Was ist mit einer Konstante nach dem ersten Zuweisen?'],['damit|sicher|versehen|lesbar|zentral|schutz|schützt|verständlich','Warum benutzt man Konstanten überhaupt?']],
+ 'Mit final, zum Beispiel final double MWST = 8.1;. Eine Konstante bekommt nur einmal einen Wert und kann danach nicht geändert werden. Das schützt vor versehentlichem Ändern und macht Zahlen im Code verständlich.',
+ 'final TYP NAME = Wert; ist danach nie mehr änderbar. Name GROSS.','final heisst endgültig.'],
+['KN02c','Ich kenne die 8 primitiven Datentypen und kann Speichergrösse und Wertebereich angeben oder herausfinden.','Zähl die 8 primitiven Datentypen auf. Wie findest du heraus, wie gross der Wertebereich von int ist?',
+ [['byte&short&\\bint\\b&long','Welche vier Ganzzahl-Typen gibt es?'],['float&double','Welche zwei Typen gibt es für Kommazahlen?'],['char&boolean','Welche zwei Typen fehlen noch: einer für ein Zeichen, einer für wahr oder falsch?'],['max_value|min_value|integer\\.|bit','Wie findest du den grössten int-Wert heraus, oder wie viel Speicher braucht ein int?']],
+ 'Ganzzahlen: byte, short, int, long. Kommazahlen: float, double. Dazu char für ein Zeichen und boolean für true oder false. int hat 32 Bit, den Bereich zeigen Integer.MIN_VALUE und Integer.MAX_VALUE, also 2147483647.',
+ 'byte 8, short 16, int 32, long 64 Bit, float 32, double 64, char 16 Bit, boolean true/false.','«Bei Schule Ist Lernen Fein, Doch Chillen Besser»: byte, short, int, long, float, double, char, boolean.'],
+['KN02d','Ich kann für einen Wert einen passenden Datentyp wählen und die Wahl begründen.','Welchen Datentyp nimmst du für ein Alter, einen Preis, eine Postleitzahl und eine Ja/Nein-Antwort? Begründe.',
+ [['alter.{0,40}(\\bint\\b|byte|short)|(\\bint\\b|byte|short).{0,40}alter','Welcher Typ passt für das Alter?'],['preis.{0,40}(double|float)|(double|float).{0,40}preis','Welcher Typ passt für einen Preis wie 4.95?'],['boolean','Welcher Typ passt für ja oder nein?'],['weil|\\bda\\b|komma|ganz|rechn|führende','Warum passt dein Typ jeweils? Was ist das Argument?']],
+ 'Für das Alter int, weil es eine ganze Zahl ist. Für den Preis double, weil er Kommastellen hat. Für die Postleitzahl String, weil man damit nicht rechnet und führende Nullen bleiben sollen. Für Ja/Nein boolean.',
+ 'Ganze Zahl: int. Komma: double. Nummer ohne Rechnen: String. Ja/Nein: boolean. Ein Zeichen: char.','Frag dich: Rechne ich damit? Hat es ein Komma?'],
+['KN02e','Ich kenne die mathematischen Operatoren (+ - * / % und Kurzformen wie ++, +=) und kann sie anwenden.','Welche mathematischen Operatoren gibt es in Java, und was machen ++ und +=?',
+ [['\\*|mal&/|geteilt','Welche Zeichen stehen für Mal und Geteilt?'],['%|modulo|rest','Welcher Operator gibt den Rest einer Division?'],['\\+\\+|um (eins|1) erh','Was macht ++?'],['\\+=|kurzform','Was macht +=?']],
+ 'Es gibt + - * / und % für den Rest. ++ erhöht um 1, also ist x++ dasselbe wie x = x + 1, -- verringert um 1. x += 3 ist die Kurzform für x = x + 3, genauso gibt es -=, *= und /=.',
+ '+ - * / %. x++ heisst plus 1. x += 3 heisst x = x + 3.','% ist der Rest beim Pizzateilen: 17 Stück auf 5 Personen, 2 bleiben übrig.'],
+['KN02f','Ich kann erklären, wie sich die Operatoren bei verschiedenen Datentypen verhalten (z. B. 7 / 2 bei int, was % macht).','Was ergibt 7 / 2 bei int, und warum? Und was macht der Operator %?',
+ [['\\b3\\b','Was genau kommt bei 7 / 2 mit int heraus?'],['ganzzahl|abgeschnitten|nachkomma|kein komma','Warum kommt nicht 3.5 heraus?'],['rest','Was liefert % genau?'],['double|2\\.0|3\\.5','Wie bekommst du 3.5 heraus?']],
+ '7 / 2 ergibt bei int 3, weil eine Division zweier int-Werte eine Ganzzahldivision ist und die Nachkommastellen abgeschnitten werden. % gibt den Rest, 7 % 2 ist 1. Mit 7 / 2.0, also einem double, bekommt man 3.5.',
+ 'int / int schneidet ab (7 / 2 = 3). % ist der Rest (7 % 2 = 1). Ein double dabei ergibt 3.5.','int hat keine Kommataschen: Alles hinter dem Komma fällt raus.'],
+['KN02g','Ich kann den Gültigkeitsbereich einer Variable an meinem Code zeigen.','Was bedeutet der Gültigkeitsbereich einer Variable? Erklär es an einem Beispiel mit Klammern.',
+ [['block|klammer|\\{','Woran erkennst du im Code, wo eine Variable gilt?'],['nur (da|dort|in)|innerhalb|ausserhalb','Kann man die Variable ausserhalb ihres Blocks noch benutzen?'],['fehler|unbekannt|cannot find|compiler','Was passiert, wenn du sie ausserhalb trotzdem benutzt?']],
+ 'Eine Variable gilt nur im Block mit geschweiften Klammern, in dem sie deklariert wurde, und in den Blöcken darin. Deklariere ich summe in einer for-Schleife, kann ich sie ausserhalb der Schleife nicht mehr benutzen: Der Compiler meldet einen Fehler, weil sie dort unbekannt ist.',
+ 'Eine Variable lebt vom Deklarieren bis zur schliessenden Klammer ihres Blocks.','Was im Zimmer liegt, gibt es im Flur nicht.'],
+['KN02h','Ich kann Typumwandlungen anwenden (implizit und explizit) und erklären, wann dabei Daten verloren gehen.','Was ist der Unterschied zwischen impliziter und expliziter Typumwandlung, und wann gehen Daten verloren?',
+ [['implizit&automatisch|selbst|von allein','Wann wandelt Java von selbst um?'],['explizit&cast|\\(int\\)|klammer|von hand','Wie schreibst du eine explizite Umwandlung?'],['verlor|verlust|abgeschnitten|überl[äa]uf|nachkomma|passt nicht','Wann gehen dabei Daten verloren?']],
+ 'Implizit wandelt Java automatisch von klein nach gross um, etwa int nach double, da geht nichts verloren. Explizit erzwinge ich mit einem Cast wie (int) 9.99 die Umwandlung von gross nach klein. Dabei werden Nachkommastellen abgeschnitten, oder der Wert läuft über, wenn er nicht hineinpasst.',
+ 'Klein nach gross geht automatisch. Gross nach klein braucht (typ) und kann Daten verlieren. (int) schneidet ab, rundet nicht.','Wasser vom Glas in den Eimer geht immer, vom Eimer ins Glas läuft es über.'],
+['KN02i','Ich kann Werte von der Konsole einlesen und an die Konsole ausgeben.','Wie liest du einen Wert von der Konsole ein, und wie gibst du etwas aus?',
+ [['scanner','Welche Klasse brauchst du zum Einlesen?'],['system\\.in','Woher liest der Scanner?'],['next','Mit welcher Methode holst du den Wert?'],['print|system\\.out','Wie gibst du etwas aus?']],
+ 'Mit Scanner sc = new Scanner(System.in); und dann zum Beispiel int z = sc.nextInt(); oder String s = sc.nextLine();. Ausgeben mit System.out.println(…). Vorher braucht es import java.util.Scanner;.',
+ 'import java.util.Scanner; Scanner sc = new Scanner(System.in); sc.nextInt() oder sc.nextLine(); System.out.println().','in = rein (Tastatur), out = raus (Bildschirm).'],
+
+['KN03a','Ich kenne die Vergleichsoperatoren und die logischen Operatoren und kann den Unterschied erklären.','Welche Vergleichsoperatoren und welche logischen Operatoren kennst du, und was ist der Unterschied?',
+ [['==&!=|<|>','Welche Vergleichsoperatoren gibt es?'],['&&|\\bund\\b&\\|\\||\\boder\\b','Welche logischen Operatoren gibt es?'],['vergleich&verkn[üu]pf|kombin','Was ist der Unterschied: Was machen Vergleichs- und was logische Operatoren?']],
+ 'Vergleichsoperatoren wie == != < <= > >= vergleichen zwei Werte und ergeben true oder false. Logische Operatoren wie && (und), || (oder), ! (nicht) und ^ (entweder oder) verknüpfen solche Wahrheitswerte zu einer Gesamtbedingung.',
+ 'Vergleich: == != < <= > >=. Logik: && und, || oder, ! nicht, ^ genau eins.','Vergleichen macht aus Zahlen ein Ja/Nein, Logik macht aus vielen Ja/Nein eins.'],
+['KN03b','Ich kann verknüpfte Bedingungen schreiben und auswerten und kenne den Datentyp des Ergebnisses.','Werte a > 5 && b < 3 für a = 7 und b = 4 aus. Welchen Datentyp hat das Ergebnis?',
+ [['false|falsch','Was kommt bei a = 7 und b = 4 heraus?'],['boolean','Welcher Datentyp ist das Ergebnis?'],['beide|zweite|4 < 3|b < 3','Warum genau ist es so? Welche Teilbedingung entscheidet?']],
+ 'a > 5 ist true, b < 3 ist false. && ist nur true, wenn beide Seiten true sind, also ist das Ergebnis false. Der Datentyp ist boolean.',
+ '&&: beide müssen true sein. ||: eine reicht. Das Ergebnis ist immer boolean.','&& ist die strenge Mutter (alles muss stimmen), || der lockere Vater (eins reicht).'],
+['KN03c','Ich kann if, if-else und if-else if-else anwenden.','Wann brauchst du if, if-else und if-else if-else? Wie arbeitet Java die Zweige ab?',
+ [['\\bif\\b&bedingung|wahr|true','Was macht ein einfaches if?'],['else&sonst|andernfalls|false','Wozu dient else?'],['else if&mehr|mehrere|fälle|stufen','Wann brauchst du else if?'],['oben nach unten|nur (ein|der erste)|erste wahr|übersprungen|reihe','Wie viele Zweige werden bei if-else if-else höchstens ausgeführt?']],
+ 'if führt Code nur aus, wenn die Bedingung true ist. else ist der Weg für sonst. Mit else if prüfe ich mehrere Fälle nacheinander von oben nach unten; nur der erste wahre Zweig läuft, alle anderen werden übersprungen.',
+ 'if = wenn, else = sonst, else if = sonst wenn. Nur der erste wahre Zweig läuft.','Wie eine Treppe: Du steigst bei der ersten passenden Stufe aus.'],
+['KN03d','Ich kann ein switch mit case, break und default anwenden und erklären, was ohne break passiert.','Wie funktioniert ein switch mit case, break und default? Was passiert ohne break?',
+ [['case&wert|fall','Was steht bei case?'],['default&sonst|kein|andere|passt nicht','Wofür ist default?'],['break&beend|verl[äa]ss|raus|stoppt|abbr','Was macht break?'],['weiter|n[äa]chste|durch|fall.?through|folgend','Was passiert genau, wenn break fehlt?']],
+ 'switch vergleicht eine Variable mit festen Werten. Beim passenden case läuft der Code ab dort, und break verlässt den switch. default läuft, wenn kein case passt. Ohne break läuft das Programm in die folgenden cases weiter, auch wenn sie nicht passen, das nennt man Fall-through.',
+ 'switch(x) { case Wert: … break; default: … }. Ohne break fällt es durch.','Ohne Bremse (break) rollst du den Hügel weiter runter.'],
+['KN03e','Ich kann begründen, wann switch und wann if die bessere Wahl ist.','Wann ist switch die bessere Wahl und wann if? Begründe.',
+ [['switch&feste|einzel|bestimmte|konkret|viele werte|menü','Wann passt switch?'],['\\bif\\b&bereich|grösser|kleiner|kombin|&&|komplex','Wann passt if besser?'],['übersicht|lesbar|klar|verständlich|nur (auf )?gleich','Warum ist die Wahl wichtig, wenn beides funktioniert?']],
+ 'switch passt, wenn eine Variable mit vielen festen Einzelwerten verglichen wird, zum Beispiel eine Menüauswahl von 1 bis 5, das ist übersichtlicher. if passt bei Bereichen wie note >= 4 oder bei verknüpften Bedingungen, weil switch nur auf Gleichheit prüft.',
+ 'Feste Einzelwerte: switch. Bereiche, && oder ||: if.','switch ist ein Schalter mit festen Stufen, if ein Dimmer.'],
+['KN03f','Ich kann erklären, warum man Strings mit equals() statt == vergleicht.','Warum vergleicht man Strings mit equals() und nicht mit ==?',
+ [['==&referenz|adresse|objekt|speicher|selbe','Was vergleicht == bei Strings eigentlich?'],['equals&inhalt|text|zeichen','Was vergleicht equals()?'],['false|falsch|zuf[äa]llig|manchmal|nicht immer','Was kann passieren, wenn du == benutzt?']],
+ '== vergleicht bei Objekten, ob es dasselbe Objekt im Speicher ist, nicht den Text. Zwei gleiche Texte können verschiedene Objekte sein, dann ergibt == false. equals() vergleicht den Inhalt Zeichen für Zeichen.',
+ 'Strings immer mit a.equals(b) vergleichen. == prüft nur, ob es dasselbe Objekt ist.','Zwillinge sehen gleich aus (equals), sind aber nicht dieselbe Person (==).'],
+['KN03g','Ich kenne die Standard-Symbole des Activity-Diagramms (UML 2.5) und kann eine Entscheidung darin darstellen und erklären.','Welche Symbole hat ein Activity-Diagramm, und wie stellst du darin eine Entscheidung dar?',
+ [['start&punkt|kreis','Wie sieht der Startknoten aus?'],['ende|end&kreis|punkt','Wie sieht der Endknoten aus?'],['aktion|rechteck','Wie wird eine Aktion dargestellt?'],['raute&bedingung|eckig|wächter|guard','Wie sieht eine Entscheidung aus, und was steht an den Pfeilen?']],
+ 'Der Start ist ein ausgefüllter Punkt, das Ende ein Kreis mit Punkt darin, eine Aktion ein Rechteck mit runden Ecken, und Pfeile zeigen den Ablauf. Eine Entscheidung ist eine Raute. An jedem ausgehenden Pfeil steht eine Bedingung in eckigen Klammern, zum Beispiel [note >= 4] und [sonst]. Eine zweite Raute führt die Wege wieder zusammen.',
+ 'Start: schwarzer Punkt. Ende: Kreis mit Punkt. Aktion: abgerundetes Rechteck. Entscheidung: Raute mit [Bedingung] an den Pfeilen.','Die Raute ist eine Weggabelung, die Schilder in [ ] zeigen den Weg.'],
+['KN03h','Ich kann ein Activity-Diagramm lesen (Token-Prinzip) und Fehler darin erkennen.','Wie liest du ein Activity-Diagramm mit dem Token-Prinzip, und welche Fehler kann ein Activity-Diagramm haben?',
+ [['token|marke|spielstein','Was ist das Token?'],['wander|fliesst|folgt|bewegt|entlang','Wie bewegt sich das Token durchs Diagramm?'],['überschneid|nicht alle|lücke|vollst[äa]ndig|eindeutig|sackgasse|kein ende|endknoten fehlt','Nenn einen typischen Fehler, den du so findest.']],
+ 'Ich denke mir ein Token, das beim Start beginnt und den Pfeilen folgt. An jeder Aktion wird sie ausgeführt, an einer Raute nimmt das Token den Pfeil mit der wahren Bedingung. So finde ich Fehler: Bedingungen, die sich überschneiden oder nicht vollständig sind, Sackgassen ohne Ende oder ein fehlender Start- oder Endknoten.',
+ 'Token = Spielfigur vom Start den Pfeilen nach. Fehler: Bedingungen nicht eindeutig oder unvollständig, Sackgasse, kein Ende.','Brettspiel: Die Figur muss an jeder Gabelung genau einen Weg haben.'],
+
+['KN04a','Ich kann begründen, wozu es Code-Konventionen gibt, obwohl der Compiler den Code auch so versteht.','Wozu gibt es Code-Konventionen, obwohl der Compiler den Code auch so versteht?',
+ [['mensch|lesen|lesbar','Für wen sind Konventionen eigentlich da?'],['team|andere|später|pfleg|wart','Warum ist das besonders wichtig, wenn mehrere am Code arbeiten oder man später etwas ändert?'],['fehler|einheitlich|schneller','Welchen Vorteil hat einheitlicher Code noch?']],
+ 'Der Compiler braucht sie nicht, aber Menschen. Einheitlich formatierter und benannter Code ist schneller lesbar, im Team und später leichter zu pflegen, und Fehler fallen schneller auf.',
+ 'Konventionen sind für Menschen: lesbar, einheitlich, wartbar.','Wie Rechtschreibung: Man versteht dich auch ohne, aber mit geht es schneller.'],
+['KN04b','Ich kenne die Namenskonventionen und kann Code nach der Java-Konvention formatieren und benennen.','Wie schreibt man nach Java-Konvention Variablen, Methoden, Klassen und Konstanten?',
+ [['variable|methode&klein|camel','Wie beginnen Variablen- und Methodennamen?'],['klasse&gross|upper|pascal','Wie schreibt man Klassennamen?'],['konstante&gross|upper|unterstrich|_','Wie schreibt man Konstanten?'],['einr[üu]ck|leerzeichen|format','Wie formatierst du Blöcke?']],
+ 'Variablen und Methoden schreibe ich in lowerCamelCase, also klein beginnend wie anzahlPunkte. Klassen in UpperCamelCase, also gross beginnend wie KontoVerwaltung. Konstanten GROSS mit Unterstrich wie MAX_PUNKTE. Blöcke werden mit 4 Leerzeichen eingerückt.',
+ 'variableName, methodeName(), KlassenName, KONSTANTEN_NAME.','Klassen sind Chefs: gross. Konstanten schreien: GANZ GROSS.'],
+['KN04c','Ich kenne die drei Kommentararten und kann einen guten von einem schlechten Zeilenkommentar unterscheiden.','Welche drei Kommentararten gibt es, und was unterscheidet einen guten von einem schlechten Zeilenkommentar?',
+ [['//','Wie sieht ein Zeilenkommentar aus?'],['/\\*|header|block','Wie sieht ein Header- oder Blockkommentar aus?'],['javadoc|/\\*\\*','Welche dritte Art ist für Methoden und Klassen gedacht?'],['wozu|warum|grund|absicht','Was macht einen guten Zeilenkommentar aus?']],
+ 'Der Header-Kommentar /* … */ steht oben in der Datei mit Autor und Zweck, der Zeilenkommentar beginnt mit //, und JavaDoc /** … */ beschreibt Klassen und Methoden. Ein guter Zeilenkommentar erklärt das Wozu, also warum ich etwas mache. Ein schlechter wiederholt nur, was der Code eh zeigt, wie // i erhöhen.',
+ '/* Header */, // Zeile, /** JavaDoc */. Gut: WOZU. Schlecht: WAS.','Ein Kommentar ist eine Notiz an dein zukünftiges Ich: warum, nicht was.'],
+['KN04d','Ich kann die Formatier- und die Umbenennen-Funktion meiner IDE anwenden.','Wie formatierst du Code mit der IDE, und warum benennst du mit der Umbenennen-Funktion statt von Hand?',
+ [['format|ctrl|strg|shift|alt','Wie formatierst du Code in deiner IDE?'],['rename|umbenenn|refactor','Wie heisst die Funktion zum Umbenennen?'],['überall|alle stellen|jede stelle|vergess|automatisch','Warum ist Rename besser als von Hand ändern?']],
+ 'Formatieren mache ich mit «Reformat Code» oder «Format Document», etwa Ctrl+Alt+L in IntelliJ oder Shift+Alt+F in VS Code. Umbenennen mit Refactor und Rename: Die IDE ändert den Namen automatisch an allen Stellen, an denen er verwendet wird, ohne eine zu vergessen.',
+ 'Formatieren: Reformat Code. Umbenennen: Refactor, Rename (IntelliJ Shift+F6, VS Code F2).','Rename ist ein Umzug mit Nachsendeauftrag: Alle Briefe kommen an.'],
+
+['KN05a','Ich kann die drei Fehlertypen (Syntax, Laufzeit, Logik) mit je einem Beispiel nennen und angeben, wann welcher erkannt wird.','Welche drei Fehlertypen gibt es? Gib je ein Beispiel und sag, wann sie erkannt werden.',
+ [['syntax&compiler|kompil|semikolon|klammer','Was ist ein Syntaxfehler, und wann wird er erkannt?'],['laufzeit&aus(zu)?f[üu]hr|absturz|exception|durch 0|index','Was ist ein Laufzeitfehler, und wann tritt er auf?'],['logik&falsch|keine meldung|testen','Was ist ein Logikfehler, und wie bemerkst du ihn?']],
+ 'Ein Syntaxfehler verstösst gegen die Sprachregeln, zum Beispiel ein fehlendes Semikolon; der Compiler meldet ihn vor dem Start. Ein Laufzeitfehler lässt das Programm beim Ausführen abstürzen, zum Beispiel bei einer Division durch 0 mit einer Exception. Ein Logikfehler läuft ohne Meldung, rechnet aber falsch, etwa a + b / 2 statt (a + b) / 2; den findet man nur durch Testen.',
+ 'Syntax: Compiler meldet. Laufzeit: Absturz mit Exception. Logik: läuft, aber falsch.','Rechtschreibfehler, Stolpern, falscher Weg.'],
+['KN05b','Ich kann begründen, warum der Logikfehler der gefährlichste ist.','Warum ist der Logikfehler der gefährlichste Fehlertyp?',
+ [['keine (fehler)?meldung|kein fehler|unbemerkt|still','Was fehlt beim Logikfehler, was die anderen Fehler haben?'],['falsch','Was liefert das Programm dann?'],['test|kunde|spät|schaden','Warum ist das gefährlich? Wann fällt es auf?']],
+ 'Weil weder Compiler noch Laufzeit eine Meldung geben: Das Programm läuft scheinbar korrekt, liefert aber still falsche Resultate. Man merkt es oft erst spät, etwa beim Kunden, und nur durch gezieltes Testen.',
+ 'Logikfehler: keine Meldung, falsches Resultat. Nur Testen hilft.','Ein Navi, das dich sicher an den falschen Ort bringt.'],
+['KN05c','Ich kann Compiler-Fehlermeldungen und Exception-Meldungen lesen und die Fehlerstelle finden.','Wie liest du eine Compiler-Fehlermeldung oder eine Exception, um die Fehlerstelle zu finden?',
+ [['zeile|line','Welche Angabe führt dich direkt zur Stelle?'],['datei|\\.java|klasse','Was steht ausser der Zeile noch dabei?'],['exception|beschreib|grund|was falsch|art','Was sagt dir der Text der Meldung?'],['erst|oben|stack','Wenn es viele Meldungen gibt: Welche schaust du zuerst an?']],
+ 'Die Meldung nennt Datei und Zeilennummer, zum Beispiel Main.java:7, und beschreibt den Grund, zum Beispiel ArithmeticException: / by zero. Ich gehe zur genannten Zeile und beginne bei der ersten Meldung beziehungsweise bei der obersten Zeile des Stack-Traces aus meinem eigenen Code.',
+ 'Art und Grund, dann Datei:Zeile. Erste Meldung zuerst.','Eine Fehlermeldung ist eine Adresse: Strasse (Datei), Hausnummer (Zeile), Problem (Text).'],
+['KN05d','Ich kann in meiner IDE Breakpoints setzen und im Debug-Modus starten.','Wie setzt du einen Breakpoint und startest den Debug-Modus? Was passiert dann?',
+ [['klick|rand|zeilennummer|punkt','Wie setzt du einen Breakpoint?'],['debug','Wie musst du das Programm starten, damit er wirkt?'],['h[äa]lt|stopp|pause|wartet','Was macht das Programm, wenn es den Breakpoint erreicht?']],
+ 'Ich klicke links neben die Zeilennummer, dann erscheint ein roter Punkt. Ich starte mit Debug statt mit Run. Das Programm hält vor dieser Zeile an, und ich sehe alle Variablenwerte.',
+ 'Roter Punkt am Rand setzen, mit Debug starten, das Programm hält an.','Ein Breakpoint ist ein Stoppschild für dein Programm.'],
+['KN05e','Ich kann mit Step over und Step into schrittweise durchs Programm gehen, den Unterschied erklären und Variableninhalte beobachten.','Was ist der Unterschied zwischen Step over und Step into, und wie beobachtest du dabei Variablen?',
+ [['over&ganz|komplett|n[äa]chste zeile|überspring','Was macht Step over mit einem Methodenaufruf?'],['into&hinein|in die methode|springt','Was macht Step into?'],['variable|fenster|watch','Wo siehst du die Variablenwerte?']],
+ 'Step over führt die aktuelle Zeile ganz aus, auch einen Methodenaufruf, und geht zur nächsten Zeile. Step into springt in die aufgerufene Methode hinein. Im Variablen-Fenster sehe ich nach jedem Schritt die aktuellen Werte.',
+ 'Over: Zeile ganz ausführen. Into: in die Methode hinein. Werte im Variablen-Fenster.','Over geht über die Brücke, Into in den Tunnel.'],
+['KN05f','Ich kann im Debugger live vorführen, wie sich ein Zustandswert meines Programms Schritt für Schritt verändert.','Wie würdest du im Debugger vorführen, wie sich ein Wert deines Programms Schritt für Schritt verändert?',
+ [['breakpoint','Wo beginnst du?'],['step|schritt','Wie gehst du weiter?'],['variable|fenster|beobacht|watch','Was schaust du dir bei jedem Schritt an?'],['schleife|z[äa]hler|summe|wächst|erhöht|steigt','Welcher Wert ändert sich konkret, und wie?']],
+ 'Ich setze einen Breakpoint vor eine Schleife, starte im Debug-Modus und gehe mit Step over Zeile für Zeile weiter. Im Variablen-Fenster zeige ich, wie die summe bei jedem Durchlauf wächst und der Zähler i hochzählt.',
+ 'Breakpoint vor die Schleife, Debug, Step over, Variable beobachten.','Wie ein Daumenkino: Bild für Bild sieht man die Bewegung.'],
+
+['KN06a','Ich kann alle drei Schleifentypen (while, do-while, for) schreiben.','Welche drei Schleifentypen gibt es in Java? Beschreib den Aufbau jeder Schleife.',
+ [['while','Welche Schleife prüft die Bedingung vorne?'],['\\bdo\\b','Welche Schleife prüft die Bedingung erst am Ende?'],['\\bfor\\b','Welche Schleife hat einen Zähler im Kopf?'],['bedingung|solange|true','Wovon hängt ab, ob eine Schleife weiterläuft?']],
+ 'while (Bedingung) { … } prüft die Bedingung vorne. do { … } while (Bedingung); prüft hinten. for (Start; Bedingung; Schritt) { … } ist für eine feste Anzahl Durchläufe. Alle laufen, solange die Bedingung true ist.',
+ 'while (bed) { }, do { } while (bed);, for (start; bed; schritt) { }.','while: erst schauen, dann springen. do: erst springen, dann schauen.'],
+['KN06b','Ich kann erklären, wie oft while und do-while mindestens laufen, und kenne die drei Teile des for-Kopfs.','Wie oft laufen while und do-while mindestens, und welche drei Teile hat der Kopf einer for-Schleife?',
+ [['while&\\b0\\b|null|gar nicht|nie|kein','Wie oft läuft while mindestens?'],['\\bdo\\b&\\b1\\b|einmal|ein mal','Wie oft läuft do-while mindestens?'],['ende|hinten|vorne|zuerst|vorher|erst am','Warum ist das so? Wann wird jeweils geprüft?'],['start|init|anfang&bedingung&schritt|erh[öo]h|\\+\\+','Welche drei Teile hat der for-Kopf?']],
+ 'while läuft mindestens 0-mal, weil die Bedingung vor dem ersten Durchlauf geprüft wird. do-while läuft mindestens einmal, weil erst am Ende geprüft wird. Der for-Kopf hat einen Start wie int i = 0, eine Bedingung wie i < 10 und einen Schritt wie i++.',
+ 'while: mindestens 0-mal. do-while: mindestens einmal. for (Start; Bedingung; Schritt).','do-while: Probieren geht über Studieren, einmal immer.'],
+['KN06c','Ich kann für eine Situation den passenden Schleifentyp wählen und begründen.','Welche Schleife wählst du für ein Menü, für genau 10 Wiederholungen und für «einlesen, bis die Eingabe gültig ist»? Begründe.',
+ [['for&10|feste|anzahl|bekannt','Welche Schleife für genau 10 Wiederholungen?'],['\\bdo\\b','Welche Schleife, wenn etwas mindestens einmal laufen muss, wie ein Menü oder eine Eingabe?'],['weil|\\bda\\b|mindestens|bekannt','Warum passt deine Wahl jeweils?']],
+ 'Für genau 10 Mal nehme ich for, weil die Anzahl bekannt ist. Für das Menü und die Eingabeprüfung do-while, weil mindestens einmal angezeigt beziehungsweise eingelesen werden muss. while nehme ich, wenn unklar ist, ob überhaupt etwas zu tun ist.',
+ 'Anzahl bekannt: for. Mindestens einmal: do-while. Vielleicht nie: while.','Zählen: for. Fragen, bis es passt: do-while.'],
+['KN06d','Ich kann erklären, was break und continue machen.','Was machen break und continue in einer Schleife?',
+ [['break&beend|verl[äa]ss|abbr|raus|stopp','Was macht break?'],['continue&überspring|n[äa]chste|weiter','Was macht continue?'],['ganz|komplett|sofort|nur (den|diesen)|rest','Was ist der genaue Unterschied: ganze Schleife oder nur ein Durchlauf?']],
+ 'break beendet die ganze Schleife sofort, das Programm macht nach der Schleife weiter. continue überspringt nur den Rest des aktuellen Durchlaufs und macht mit dem nächsten Durchlauf weiter.',
+ 'break: Schleife ganz verlassen. continue: diesen Durchlauf überspringen.','break ist Feierabend, continue eine Pause bis zur nächsten Runde.'],
+['KN06e','Ich kann erklären, wie Endlosschleifen entstehen, und an meinem Code zeigen, was passieren müsste, damit meine Hauptschleife nie endet.','Wie entsteht eine Endlosschleife? Was müsste in deinem Programm passieren, damit die Hauptschleife nie endet?',
+ [['immer (wahr|true)|nie (falsch|false)|bleibt (wahr|true)','Was ist mit der Bedingung bei einer Endlosschleife?'],['ver[äa]nder|erh[öo]h|vergess|z[äa]hler|\\+\\+','Was wird typischerweise vergessen?'],['eingabe|abbruch|beend|menü|\\b0\\b','Was müsste bei deiner Hauptschleife nie passieren, damit sie endlos läuft?']],
+ 'Eine Endlosschleife entsteht, wenn die Bedingung immer true bleibt und nie false wird, zum Beispiel weil der Zähler in der Schleife nicht verändert wird. Meine Menüschleife läuft, bis man 0 eingibt. Gäbe man nie 0 ein oder würde die Eingabe nicht neu eingelesen, liefe sie endlos.',
+ 'Endlos heisst: Die Bedingung wird nie false (Zähler vergessen, Eingabe nicht neu gelesen).','Hamster im Rad: Ohne Ausgang dreht er ewig.'],
+['KN06f','Ich kann die Schleifentypen im Activity-Diagramm darstellen.','Wie stellst du eine while-, eine do-while- und eine for-Schleife im Activity-Diagramm dar?',
+ [['raute|entscheidung','Welches Symbol braucht jede Schleife im Activity-Diagramm?'],['zur[üu]ck|rück','Wie sieht man im Diagramm, dass etwas wiederholt wird?'],['vor|vorne|anfang&nach|ende|hinten','Wo steht die Raute bei while und wo bei do-while?']],
+ 'Jede Schleife braucht eine Raute mit Bedingung und einen Pfeil, der zurückführt. Bei while und for steht die Raute vor den Aktionen, bei do-while nach den Aktionen. Bei for kommt vor die Raute die Startaktion i = 0 und vor den Rückpfeil die Aktion i++.',
+ 'Schleife = Raute plus Rückpfeil. while und for: Raute vorne. do-while: Raute hinten.','Kopf zuerst denken (while) oder zuerst loslaufen (do-while).'],
+
+['KN07a','Ich kann ein Array deklarieren, befüllen, auslesen und verändern.','Wie deklarierst du ein Array, befüllst es, liest einen Wert aus und änderst ihn?',
+ [['new|\\[\\]|\\{','Wie legst du ein Array an?'],['\\[\\d\\]|\\[i\\]|index','Wie greifst du auf ein einzelnes Element zu?'],['=|zuweis|überschreib|[äa]nder','Wie änderst du einen Wert?'],['fest|gr[öo]sse|length','Was ist bei der Grösse eines Arrays zu beachten?']],
+ 'int[] zahlen = new int[5]; legt ein Array für 5 Werte an, oder direkt int[] z = {4, 8, 15};. Mit zahlen[0] = 7; schreibe ich, mit zahlen[0] lese ich, ein neuer Wert überschreibt den alten. Die Grösse ist fest, zahlen.length gibt sie an.',
+ 'int[] a = new int[5]; a[0] = 7; x = a[0]; a.length.','Ein Array ist ein Schubladenkasten mit nummerierten Fächern ab 0.'],
+['KN07b','Ich kann angeben, bei welchem Index ein Array beginnt und endet, und es mit einer for-Schleife durchlaufen.','Bei welchem Index beginnt und endet ein Array? Wie durchläufst du es mit for?',
+ [['\\b0\\b|null','Bei welchem Index beginnt ein Array?'],['length\\s*-\\s*1|minus (1|eins)|letzte','Was ist der letzte gültige Index?'],['for&length|i ?<','Wie sieht die for-Schleife aus, die alle Elemente besucht?']],
+ 'Der erste Index ist 0, der letzte ist length - 1. Durchlaufen: for (int i = 0; i < a.length; i++) { System.out.println(a[i]); }.',
+ 'Index von 0 bis length - 1. for (int i = 0; i < a.length; i++).','Kleiner als length, nie kleiner gleich.'],
+['KN07c','Ich kann erklären, was bei einem Zugriff ausserhalb des Arrays passiert (Off-by-one-Fehler).','Was passiert bei einem Zugriff ausserhalb des Arrays, und was ist ein Off-by-one-Fehler?',
+ [['arrayindexoutofbounds|exception|absturz|st[üu]rzt','Was passiert beim Zugriff auf a[a.length]?'],['laufzeit|aus(zu)?f[üu]hr|nicht der compiler','Wann merkt man das: beim Kompilieren oder beim Ausführen?'],['um eins|eins zu|einen zu|<=','Was ist ein Off-by-one-Fehler?']],
+ 'Java prüft jeden Zugriff. Ausserhalb von 0 bis length - 1 stürzt das Programm zur Laufzeit mit einer ArrayIndexOutOfBoundsException ab, beim Ausführen, nicht beim Kompilieren. Ein Off-by-one-Fehler ist, wenn man um eins zu weit oder zu kurz zählt, typisch ist i <= a.length statt i < a.length.',
+ 'Ausserhalb: ArrayIndexOutOfBoundsException zur Laufzeit. Off-by-one: <= statt <.','Zaunpfahlproblem: 10 Meter Zaun brauchen 11 Pfähle.'],
+['KN07d','Ich kenne die wichtigsten String-Methoden (length, charAt, contains, substring, toUpperCase, equals) und kann sie anwenden.','Welche String-Methoden kennst du, und was machen sie?',
+ [['length','Wie bekommst du die Anzahl Zeichen?'],['charat','Wie holst du ein einzelnes Zeichen?'],['substring|contains|touppercase|tolowercase|indexof|replace|trim','Nenn noch weitere Methoden, zum Beispiel für Teilstücke oder Gross- und Kleinschreibung.'],['equals','Mit welcher Methode vergleichst du zwei Strings?']],
+ 'length() gibt die Anzahl Zeichen, charAt(i) das Zeichen an Stelle i, contains("x") prüft, ob etwas vorkommt, substring(a, b) schneidet ein Stück heraus, wobei b nicht mehr dazugehört, toUpperCase() macht alles gross, und equals() vergleicht den Inhalt.',
+ 'length(), charAt(i), contains(), substring(von, bis exklusiv), toUpperCase(), equals().','Bei substring ist «bis» ein Zaun: Er gehört nicht mehr dazu.'],
+['KN07e','Ich kann erklären, warum Strings unveränderlich sind und warum man sie mit equals() statt == vergleicht.','Was heisst es, dass Strings unveränderlich sind? Und warum vergleicht man sie mit equals()?',
+ [['neue[nr]? string|neues objekt|kopie|gibt .{0,30}zur[üu]ck|liefert','Was liefert eine Methode wie toUpperCase() eigentlich?'],['bleibt|original|unver[äa]nder|nicht (ge)?[äa]nder','Was passiert mit dem ursprünglichen String?'],['equals&inhalt|text&==&objekt|adresse|referenz','Warum reicht == für den Vergleich nicht?']],
+ 'Ein String kann nach dem Erzeugen nicht verändert werden. Methoden wie toUpperCase() liefern einen neuen String, das Original bleibt gleich, deshalb muss man s = s.toUpperCase(); schreiben. Vergleichen tut man mit equals(), weil das den Inhalt prüft, während == nur prüft, ob es dasselbe Objekt ist.',
+ 's.toUpperCase() ändert s nicht, also s = s.toUpperCase();. Vergleich mit equals().','Ein String ist in Stein gemeisselt: Ändern heisst einen neuen Stein meisseln.'],
+
+['KN08a','Ich kann Funktionen mit Parametern und Rückgabewert schreiben und aufrufen, inklusive return ohne Wert in einer void-Methode.','Wie schreibst du eine Methode mit Parametern und Rückgabewert, und wie rufst du sie auf? Was macht return; in einer void-Methode?',
+ [['parameter|argument|übergeb','Wie bekommt die Methode ihre Werte?'],['return&wert|zur[üu]ck','Wie gibt die Methode ein Ergebnis zurück?'],['aufruf|\\w+\\(\\d','Wie rufst du die Methode auf?'],['void&sofort|vorzeitig|beend|verl[äa]ss|abbr','Was macht return ohne Wert in einer void-Methode?']],
+ 'static int summe(int a, int b) { return a + b; } nimmt zwei Parameter und gibt das Ergebnis mit return zurück. Aufrufen tue ich sie mit int s = summe(3, 4);. In einer void-Methode beendet return; die Methode sofort ohne Wert, zum Beispiel bei einer ungültigen Eingabe.',
+ 'static TYP name(PARAMETER) { … return wert; }. Aufruf: x = name(…);. In void: return; heisst früh raus.','Eine Methode ist ein Automat: Münzen rein (Parameter), Getränk raus (return).'],
+['KN08b','Ich kann erklären, was das EVA-Prinzip bedeutet, und zeigen, wo es in meinem Programm umgesetzt ist.','Was bedeutet das EVA-Prinzip, und wo setzt du es in deinem Programm um?',
+ [['eingabe&verarbeit&ausgabe','Wofür stehen die drei Buchstaben?'],['trenn|reihenfolge|struktur|methode','Wie hilft EVA beim Strukturieren?'],['scanner|einles|println|berechn','Wo genau ist EVA in deinem eigenen Programm?']],
+ 'EVA heisst Eingabe, Verarbeitung, Ausgabe: erst Daten einlesen, etwa mit dem Scanner, dann berechnen, dann mit println ausgeben. Ich trenne diese Teile in eigene Methoden wie leseEingabe(), berechne() und zeigeResultat(), damit die Struktur klar ist.',
+ 'E: einlesen. V: rechnen. A: ausgeben. Am besten je eine Methode.','Kochen: Zutaten holen, kochen, servieren.'],
+['KN08c','Ich kann begründen, warum ich bestimmte Codeblöcke in Funktionen ausgelagert habe.','Warum lagert man Codeblöcke in eigene Methoden aus?',
+ [['wiederverw|mehrfach|doppelt|wiederhol','Was spart man, wenn ein Codeblock öfter gebraucht wird?'],['lesbar|übersicht|verst[äa]nd|kürzer','Was bringt es für die Lesbarkeit?'],['test|fehler|[äa]nder|einer stelle','Was wird beim Ändern oder Testen einfacher?']],
+ 'Damit ich Code nicht doppelt schreiben muss und ihn wiederverwenden kann, damit main kurz und lesbar bleibt, und damit ich Fehler nur an einer Stelle korrigieren und Teile einzeln testen kann.',
+ 'Methoden: wiederverwenden, lesbar, an einer Stelle ändern und testen.','Lieber ein Rezept aufschreiben als jedes Mal neu erfinden.'],
+['KN08d','Ich kann eine ArrayList erstellen, befüllen, auslesen und Elemente entfernen und erklären, was sie von einem Array unterscheidet.','Wie erstellst du eine ArrayList, fügst Elemente hinzu, liest sie aus und entfernst sie? Was unterscheidet sie vom Array?',
+ [['arraylist','Wie erstellst du eine ArrayList?'],['\\badd\\b','Wie fügst du ein Element hinzu?'],['\\bget\\b&remove','Wie liest du ein Element aus, und wie entfernst du es?'],['w[äa]chs|dynamisch|flexib|fest','Was ist der grosse Unterschied zum Array bei der Grösse?']],
+ 'ArrayList<String> liste = new ArrayList<>(); erstellt sie, liste.add("A") fügt hinzu, liste.get(0) liest aus, liste.remove(0) entfernt, liste.size() gibt die Anzahl. Anders als ein Array mit fester Grösse wächst und schrumpft sie automatisch. Sie speichert nur Objekte, also Integer statt int.',
+ 'new ArrayList<>(), add, get(i), remove(i), size(). Wächst automatisch.','Array = Eierkarton (fest), ArrayList = Einkaufstasche (wächst).'],
+['KN08e','Ich kenne mindestens eine weitere Standard-Datenstruktur (HashSet oder HashMap) und kann ein passendes Einsatzbeispiel nennen.','Welche weitere Datenstruktur kennst du (HashSet oder HashMap), und wofür würdest du sie einsetzen?',
+ [['hashmap|hashset','Welche Datenstruktur meinst du?'],['schl[üu]ssel|key|paar|duplikat|einmal|doppel','Was ist ihre besondere Eigenschaft?'],['beispiel|z\\. ?b\\.|zum beispiel|benutzer|punkt|e-mail|email|name','Nenn ein konkretes Einsatzbeispiel.']],
+ 'Eine HashMap speichert Schlüssel-Wert-Paare, zum Beispiel Benutzername und Punktzahl, und findet den Wert schnell über den Schlüssel. Ein HashSet speichert jedes Element nur einmal, zum Beispiel schon verwendete E-Mail-Adressen.',
+ 'HashMap: Schlüssel zu Wert (Telefonbuch). HashSet: keine Duplikate (Gästeliste).','Map ist ein Telefonbuch, Set eine Gästeliste: jeder nur einmal.'],
+['KN08f','Ich kann für mein Projekt begründen, welche Datenstruktur ich einsetze.','Welche Datenstruktur setzt du in deinem Projekt ein, und warum gerade diese?',
+ [['array|arraylist|hashmap|hashset','Welche Datenstruktur benutzt du?'],['weil|\\bda\\b|deshalb|darum','Warum gerade diese?'],['anzahl|w[äa]chs|fest|gr[öo]sse|schl[üu]ssel|doppel|such','Was ist an deinen Daten entscheidend: feste Anzahl, wachsend, Schlüssel oder keine Duplikate?']],
+ 'Ich nutze eine ArrayList für die Einträge, weil ihre Anzahl während des Programms wächst. Ein Array würde nur bei fester Anzahl passen, und eine HashMap, wenn ich über einen Schlüssel wie den Namen suchen müsste.',
+ 'Feste Anzahl: Array. Wächst: ArrayList. Suche per Schlüssel: HashMap. Keine Duplikate: HashSet.','Frag zuerst: Wie viele? Wächst es? Suche ich per Name?'],
+['KN08g','Ich kenne die wichtigsten JavaDoc-Tags (@author, @version, @param, @return) und kann die JavaDoc-HTML-Doku generieren.','Welche JavaDoc-Tags kennst du, und wie erzeugst du daraus die HTML-Dokumentation?',
+ [['@param','Wie beschreibst du einen Parameter?'],['@return','Wie beschreibst du den Rückgabewert?'],['@author|@version','Welche Tags gehören in den Kopf der Klasse?'],['javadoc&html|generier|erzeug','Wie wird daraus HTML?']],
+ 'JavaDoc steht in /** … */ über Klassen und Methoden. @author und @version beschreiben die Klasse, @param jeden Parameter und @return den Rückgabewert. Mit dem Werkzeug javadoc oder «Generate JavaDoc» in der IDE wird daraus eine HTML-Dokumentation erzeugt.',
+ '/** … */. Klasse: @author, @version. Methode: @param, @return. Das Werkzeug javadoc erzeugt HTML.','Pa-Re-Au-Ve: param, return, author, version.']
+];
+// Übungsfrage: [KN, Frage, Code oder '', [richtig, falsch, falsch, falsch], Erklärung]
+const M319_Q = [
+[1,'Welche Methode startet die JVM zuerst?','',['public static void main(String[] args)','public void start()','static int main()','Die erste Methode in der Datei'],'Die JVM sucht genau diese Zeile als Einstiegspunkt.'],
+[1,'Du benennst main in haupt um. Was passiert?','',['Es kompiliert, aber beim Start meldet Java, dass keine main-Methode gefunden wurde.','Der Compiler meldet sofort einen Syntaxfehler.','Das Programm startet ganz normal mit haupt.','Die JVM nimmt automatisch die erste Methode.'],'haupt ist eine gültige Methode, darum kompiliert es. Es fehlt nur der Einstiegspunkt, das merkt erst die JVM beim Start.'],
+[1,'Die Datei heisst Rechner.java und enthält public class Taschenrechner. Was passiert?','',['Der Compiler meldet einen Fehler, weil die public-Klasse wie die Datei heissen muss.','Es läuft, der Klassenname ist egal.','Java benennt die Datei automatisch um.','Erst beim Ausführen gibt es eine Warnung.'],'Java findet Klassen über den Dateinamen, darum müssen public-Klasse und Datei gleich heissen.'],
+[1,'Was erzeugt der Compiler javac aus Hallo.java?','',['Hallo.class mit Byte-Code','Hallo.exe für Windows','Maschinencode für den Prozessor','Eine verbesserte Hallo.java'],'javac übersetzt in plattformunabhängigen Byte-Code, den die JVM ausführt.'],
+[1,'Welche Befehle führen Hallo.java ausserhalb der IDE aus?','',['javac Hallo.java und danach java Hallo','java Hallo.class und danach javac Hallo','run Hallo.java','compile Hallo und danach start Hallo'],'Erst mit javac kompilieren, dann mit java den Klassennamen ohne .class starten.'],
+[1,'Was ist der Unterschied zwischen JDK und JRE?','',['Das JDK enthält zusätzlich Werkzeuge wie den Compiler javac, das JRE nur die Laufzeitumgebung mit der JVM.','Das JRE ist einfach die neuere Version des JDK.','Das JDK läuft nur unter Windows.','Es gibt keinen Unterschied.'],'Zum Entwickeln braucht man das JDK, zum Ausführen reicht das JRE.'],
+[1,'Wozu dient import java.util.Scanner;?','',['Die Klasse Scanner aus einem anderen Paket wird im Code verfügbar.','Der Scanner wird aus dem Internet geladen.','Das Programm startet beim Scanner.','Es erstellt eine neue Klasse Scanner.'],'import macht Klassen aus anderen Paketen mit ihrem kurzen Namen nutzbar.'],
+[1,'Warum läuft dasselbe Java-Programm auf Windows und auf macOS?','',['Der Byte-Code läuft auf jeder JVM, egal welches Betriebssystem.','Weil der Compiler für jedes System neu schreibt.','Weil Java nur Text ist.','Weil macOS Windows-Programme versteht.'],'Die JVM übersetzt den gleichen Byte-Code für das jeweilige System.'],
+
+[2,'Was ist hier Deklaration und was Initialisierung?','int alter;\nalter = 17;',['int alter; ist die Deklaration, alter = 17; die Initialisierung.','Beides ist Deklaration.','int alter; ist die Initialisierung, alter = 17; die Deklaration.','Beides ist Initialisierung.'],'Deklarieren legt Typ und Name fest, Initialisieren gibt den ersten Wert.'],
+[2,'Was passiert?','final double PI = 3.14;\nPI = 3.1416;',['Compilerfehler: Einer final-Konstante darf man keinen neuen Wert geben.','PI wird 3.1416.','Laufzeitfehler beim Zuweisen.','PI bleibt 3.14, ohne Fehlermeldung.'],'final bedeutet: nur einmal zuweisen.'],
+[2,'Wie viele Bit hat ein int, und wie gross ist der Wertebereich ungefähr?','',['32 Bit, etwa −2,1 bis +2,1 Milliarden','16 Bit, −32768 bis 32767','64 Bit, unbegrenzt','8 Bit, −128 bis 127'],'Integer.MAX_VALUE ist 2147483647.'],
+[2,'Welcher Datentyp passt für einen Preis wie 4.95?','',['double','int','char','boolean'],'Kommazahlen brauchen double (oder float).'],
+[2,'Welcher Datentyp passt für eine Postleitzahl wie 0815, mit der nicht gerechnet wird?','',['String','int','double','boolean'],'Mit einer PLZ rechnet man nicht, und als int ginge die führende 0 verloren.'],
+[2,'Was gibt der Code aus?','int a = 7;\nint b = 2;\nSystem.out.println(a / b);',['3','3.5','4','3.0'],'int / int ist eine Ganzzahldivision: Die Nachkommastellen werden abgeschnitten.'],
+[2,'Was gibt der Code aus?','System.out.println(17 % 5);',['2','3','3.4','5'],'% ist der Rest der Division: 17 = 3 · 5 + 2.'],
+[2,'Was gibt der Code aus?','int x = 5;\nx += 3;\nx++;\nSystem.out.println(x);',['9','8','6','53'],'5 + 3 = 8, dann x++ ergibt 9.'],
+[2,'Was gibt der Code aus?','System.out.println(7 / 2.0);',['3.5','3','3.0','4'],'Sobald ein double beteiligt ist, wird mit Kommastellen gerechnet.'],
+[2,'Wo ist der Fehler?','for (int i = 0; i < 3; i++) {\n  int summe = i;\n}\nSystem.out.println(summe);',['summe gibt es nur in der Schleife, ausserhalb ist sie unbekannt.','i wird falsch hochgezählt.','println braucht zwei Werte.','Es gibt keinen Fehler.'],'Eine Variable gilt nur im Block, in dem sie deklariert wurde.'],
+[2,'Was gibt der Code aus?','double d = 9.99;\nint n = (int) d;\nSystem.out.println(n);',['9','10','9.99','Compilerfehler'],'Der Cast schneidet ab, er rundet nicht: Daten gehen verloren.'],
+[2,'Welche Umwandlung passiert automatisch (implizit)?','',['int nach double','double nach int','long nach int','double nach float'],'Von klein nach gross geht ohne Cast, weil nichts verloren geht.'],
+[2,'Was gibt der Code aus?','byte b = (byte) 130;\nSystem.out.println(b);',['-126','130','127','Compilerfehler'],'byte geht nur bis 127. Beim Cast läuft der Wert über: 130 − 256 = −126.'],
+[2,'Wie liest du eine ganze Zahl von der Konsole ein?','',['Scanner sc = new Scanner(System.in); int z = sc.nextInt();','int z = System.in;','int z = System.out.readInt();','int z = Console.read();'],'Scanner mit System.in erstellen, dann nextInt() aufrufen.'],
+
+[3,'Was ist der Unterschied zwischen = und ==?','',['= weist einen Wert zu, == vergleicht zwei Werte.','Beide vergleichen.','== weist zu, = vergleicht.','= gibt es nur für Strings.'],'Ein Gleichheitszeichen speichert, zwei vergleichen.'],
+[3,'Welchen Datentyp hat das Ergebnis von a > 5 && b < 3?','',['boolean','int','String','double'],'Vergleiche und logische Verknüpfungen ergeben true oder false.'],
+[3,'Was gibt der Code aus?','int a = 7, b = 4;\nSystem.out.println(a > 5 && b < 3);',['false','true','7','Compilerfehler'],'a > 5 ist true, b < 3 ist false. && braucht beide, also false.'],
+[3,'Was gibt der Code aus?','int a = 7, b = 4;\nSystem.out.println(a > 5 || b < 3);',['true','false','4','Compilerfehler'],'Bei || reicht eine wahre Seite.'],
+[3,'Was gibt der Code aus?','System.out.println(true ^ true);',['false','true','1','Compilerfehler'],'^ ist nur wahr, wenn genau eine Seite wahr ist.'],
+[3,'Was gibt der Code aus?','int note = 5;\nif (note >= 5) System.out.println("gut");\nelse if (note >= 4) System.out.println("genügend");\nelse System.out.println("ungenügend");',['gut','gut und genügend','genügend','ungenügend'],'Der erste wahre Zweig läuft, der Rest wird übersprungen.'],
+[3,'Was gibt der Code aus?','int tag = 2;\nswitch (tag) {\n  case 1: System.out.print("Mo ");\n  case 2: System.out.print("Di ");\n  case 3: System.out.print("Mi ");\n  default: System.out.print("? ");\n}',['Di Mi ? ','Di ','Mo Di Mi ? ','? '],'Ohne break läuft das Programm in die folgenden case-Zweige weiter (Fall-through).'],
+[3,'Wann ist switch besser als if?','',['Wenn eine Variable mit vielen festen Einzelwerten verglichen wird.','Bei Bereichen wie note > 4.5.','Bei verknüpften Bedingungen mit &&.','Nie, switch ist veraltet.'],'switch prüft nur auf Gleichheit mit festen Werten.'],
+[3,'Warum ist dieser Vergleich unsicher?','String a = sc.next();\nif (a == "ja") { … }',['== prüft, ob es dasselbe Objekt ist, nicht den Text. Richtig ist a.equals("ja").','Strings kann man gar nicht vergleichen.','"ja" muss grossgeschrieben sein.','== ist richtig, der Fehler liegt bei sc.next().'],'equals() vergleicht den Inhalt.'],
+[3,'Wie sieht im Activity-Diagramm eine Entscheidung aus?','',['Eine Raute, an den ausgehenden Pfeilen stehen Bedingungen in eckigen Klammern.','Ein Rechteck mit abgerundeten Ecken','Ein ausgefüllter schwarzer Punkt','Ein Kreis mit einem Kreuz'],'Raute = Verzweigung, die Bedingungen heissen Wächterbedingungen.'],
+[3,'Wie sieht der Startknoten im Activity-Diagramm aus?','',['Ein ausgefüllter schwarzer Punkt','Eine Raute','Ein Kreis mit Punkt darin','Ein Rechteck'],'Der Kreis mit Punkt darin ist der Endknoten.'],
+[3,'Von einer Raute führen zwei Pfeile weg: [x > 5] und [x > 3]. Was ist falsch?','',['Die Bedingungen überschneiden sich (x = 6 passt zu beiden) und decken nicht alles ab (x = 2 passt zu keiner).','Eine Raute darf nur einen Pfeil haben.','Bedingungen dürfen keine Zahlen enthalten.','Nichts, das ist korrekt.'],'Wächterbedingungen müssen eindeutig und vollständig sein, sonst weiss das Token nicht, wohin.'],
+[3,'Was beschreibt das Token-Prinzip?','',['Ein gedachtes Token wandert vom Start den Pfeilen entlang durch die Aktionen.','Jede Aktion braucht ein Passwort.','Das Token zählt die Fehler.','Alle Aktionen laufen gleichzeitig.'],'So liest man den Ablauf Schritt für Schritt.'],
+
+[4,'Warum gibt es Code-Konventionen, wenn der Compiler auch unformatierten Code versteht?','',['Damit Menschen den Code schnell lesen und im Team pflegen können.','Damit der Code schneller läuft.','Weil der Compiler sonst abstürzt.','Damit die Datei kleiner wird.'],'Konventionen sind für Menschen, nicht für den Compiler.'],
+[4,'Welcher Name folgt der Konvention für eine Variable?','',['anzahlSchueler','AnzahlSchueler','ANZAHL_SCHUELER','anzahl_schueler'],'Variablen und Methoden: lowerCamelCase.'],
+[4,'Welcher Name folgt der Konvention für eine Klasse?','',['KontoVerwaltung','kontoVerwaltung','KONTO_VERWALTUNG','konto_verwaltung'],'Klassen: UpperCamelCase.'],
+[4,'Welcher Name folgt der Konvention für eine Konstante?','',['MAX_PUNKTE','maxPunkte','MaxPunkte','max-punkte'],'Konstanten: GROSS mit Unterstrich.'],
+[4,'Welcher Zeilenkommentar ist gut?','',['// Rabatt erst ab 3 Stück, so verlangt es der Kunde','// i um 1 erhöhen','// Variable x','// das ist eine Schleife'],'Gute Kommentare erklären das Wozu, nicht das Was.'],
+[4,'Welche drei Kommentararten gibt es in Java?','',['/* Header */, // Zeilenkommentar und /** JavaDoc */','// , # und <!-- -->','Nur //','REM, // und ;;'],'Der Header steht oben, // für einzelne Zeilen, JavaDoc für Klassen und Methoden.'],
+[4,'Warum benennst du mit Refactor → Rename statt von Hand um?','',['Die IDE ändert den Namen an allen Stellen, ohne eine zu vergessen.','Weil man von Hand nicht umbenennen darf.','Damit der Code schneller läuft.','Damit Kommentare gelöscht werden.'],'Von Hand vergisst man leicht eine Stelle oder ersetzt Falsches.'],
+
+[5,'Welcher Fehlertyp ist ein fehlendes Semikolon?','',['Syntaxfehler: Der Compiler findet ihn vor dem Start.','Laufzeitfehler','Logikfehler','Gar kein Fehler'],'Verstösse gegen die Sprachregeln meldet der Compiler.'],
+[5,'Welcher Fehler ist das?','int[] a = new int[3];\nSystem.out.println(a[3]);',['Laufzeitfehler: ArrayIndexOutOfBoundsException beim Ausführen','Syntaxfehler beim Kompilieren','Logikfehler ohne Meldung','Kein Fehler, es gibt 0 aus'],'Der Compiler prüft Indizes nicht, erst beim Ausführen stürzt es ab.'],
+[5,'Welcher Fehler ist das? Gesucht ist der Durchschnitt von a und b.','double schnitt = a + b / 2;',['Logikfehler: Punkt vor Strich, richtig ist (a + b) / 2.','Syntaxfehler','Laufzeitfehler','Kein Fehler'],'Das Programm läuft, rechnet aber falsch.'],
+[5,'Warum ist der Logikfehler der gefährlichste?','',['Es gibt keine Meldung: Das Programm läuft und liefert still falsche Resultate.','Weil er den Computer beschädigt.','Weil er nur beim Kompilieren auftritt.','Weil man ihn nicht korrigieren kann.'],'Nur gezieltes Testen deckt ihn auf.'],
+[5,'Was sagt diese Meldung?','Exception in thread "main" java.lang.ArithmeticException: / by zero\n    at Main.main(Main.java:7)',['In Zeile 7 von Main.java wurde durch 0 geteilt.','Zeile 7 hat einen Tippfehler.','Die Klasse Main fehlt.','Main.java hat 7 Fehler.'],'Art der Exception, Grund und Datei:Zeile.'],
+[5,'Was macht ein Breakpoint?','',['Das Programm hält im Debug-Modus vor dieser Zeile an.','Er löscht die Zeile.','Er beendet das Programm.','Er macht die Zeile zum Kommentar.'],'Dann kann man Variablenwerte ansehen.'],
+[5,'Was ist der Unterschied zwischen Step over und Step into?','',['Step over führt die Zeile ganz aus, auch Methodenaufrufe; Step into springt in die aufgerufene Methode hinein.','Beide sind gleich.','Step into überspringt die Zeile.','Step over springt zurück.'],'Into nur, wenn man in die Methode hineinschauen will.'],
+[5,'Wo siehst du beim Debuggen den aktuellen Wert einer Variable?','',['Im Variablen-Fenster des Debuggers, das sich bei jedem Schritt aktualisiert','Automatisch in der Konsole','Im Dateinamen','Gar nicht, man braucht immer println'],'Viele IDEs zeigen den Wert auch direkt neben der Zeile.'],
+
+[6,'Wie oft läuft eine do-while-Schleife mindestens?','',['Einmal, weil die Bedingung erst am Ende geprüft wird.','Nie','Unendlich oft','Genau zweimal'],'Erst ausführen, dann prüfen.'],
+[6,'Was gibt der Code aus?','int i = 10;\nwhile (i < 5) {\n  System.out.print(i);\n  i++;\n}\nSystem.out.print("fertig");',['fertig','10fertig','1011121314fertig','Endlosschleife'],'while prüft vorher: 10 < 5 ist false, also läuft sie nie.'],
+[6,'Was gibt der Code aus?','int i = 10;\ndo {\n  System.out.print(i + " ");\n  i++;\n} while (i < 5);',['10 ','nichts','10 11 12 13 14 ','Endlosschleife'],'do-while läuft einmal, dann ist 11 < 5 false.'],
+[6,'Welche drei Teile hat dieser for-Kopf?','for (int i = 0; i < 5; i++)',['Start int i = 0, Bedingung i < 5, Schritt i++','Name, Typ, Wert','Anfang, Mitte, Ende ohne Bedeutung','Bedingung, Ausgabe, Rückgabe'],'Start einmal, Bedingung vor jedem Durchlauf, Schritt nach jedem Durchlauf.'],
+[6,'Was gibt der Code aus?','for (int i = 1; i <= 3; i++) {\n  System.out.print(i * 2 + " ");\n}',['2 4 6 ','1 2 3 ','2 4 6 8 ','0 2 4 '],'i ist 1, 2, 3, also 2, 4, 6.'],
+[6,'Welche Schleife passt für ein Menü, das mindestens einmal erscheint, bis man 0 eingibt?','',['do-while','for','Keine Schleife','switch'],'Mindestens einmal: do-while.'],
+[6,'Welche Schleife passt, um genau 10 Mal etwas zu tun?','',['for','do-while','while(true)','if'],'Feste Anzahl: for.'],
+[6,'Was gibt der Code aus?','for (int i = 1; i <= 5; i++) {\n  if (i == 3) continue;\n  if (i == 5) break;\n  System.out.print(i);\n}',['124','1245','12','12345'],'continue überspringt die 3, break bricht bei der 5 ab.'],
+[6,'Warum ist das eine Endlosschleife?','int i = 0;\nwhile (i < 10) {\n  System.out.println(i);\n}',['i wird nie verändert, die Bedingung bleibt immer wahr.','Die Klammern fehlen.','println ist falsch geschrieben.','i < 10 ist von Anfang an falsch.'],'Es fehlt i++ in der Schleife.'],
+[6,'Wie oft wird "x" ausgegeben?','for (int i = 0; i <= 5; i++) {\n  System.out.print("x");\n}',['6','5','4','unendlich'],'i ist 0, 1, 2, 3, 4, 5: sechsmal. Typischer Off-by-one mit <=.'],
+[6,'Wie stellt man eine Schleife im Activity-Diagramm dar?','',['Mit einer Raute als Entscheidung und einem Pfeil, der zurückführt','Mit einem Doppelpunkt','Mit einem speziellen for-Symbol','Gar nicht, Schleifen gehen im Activity-Diagramm nicht'],'Bei while steht die Raute vor den Aktionen, bei do-while danach.'],
+
+[7,'Was gibt der Code aus?','int[] z = {4, 8, 15};\nSystem.out.println(z[1]);',['8','4','15','Fehler'],'Der Index beginnt bei 0.'],
+[7,'Was ist der letzte gültige Index bei int[] a = new int[5];?','',['4','5','6','0'],'Der letzte Index ist length - 1.'],
+[7,'Was gibt der Code aus?','int[] a = new int[3];\na[0] = 5;\nSystem.out.println(a[2]);',['0','5','null','Fehler'],'Neue int-Arrays sind mit 0 gefüllt.'],
+[7,'Was passiert?','int[] a = {1, 2, 3};\nfor (int i = 0; i <= a.length; i++) {\n  System.out.print(a[i]);\n}',['Es gibt 123 aus und stürzt dann mit ArrayIndexOutOfBoundsException ab.','Es gibt 123 aus.','Compilerfehler','Es gibt 1234 aus.'],'Mit <= läuft i bis 3, diesen Index gibt es nicht. Richtig ist i < a.length.'],
+[7,'Was gibt der Code aus?','String s = "Java";\nSystem.out.println(s.length() + " " + s.charAt(1));',['4 a','4 J','3 a','5 v'],'4 Zeichen, und charAt(1) ist das zweite Zeichen.'],
+[7,'Was gibt der Code aus?','String s = "Programmieren";\nSystem.out.println(s.substring(0, 4));',['Prog','Progr','rogr','Pro'],'substring(von, bis): bis gehört nicht dazu.'],
+[7,'Was gibt der Code aus?','String s = "hallo";\ns.toUpperCase();\nSystem.out.println(s);',['hallo','HALLO','Hallo','Fehler'],'Strings sind unveränderlich. toUpperCase() liefert einen neuen String, der hier verloren geht. Richtig: s = s.toUpperCase();'],
+[7,'Was gibt der Code aus?','String s = "Informatik";\nSystem.out.println(s.contains("form"));',['true','false','form','4'],'"form" kommt in "Informatik" vor.'],
+[7,'Was gibt der Code aus?','String a = "Hallo";\nString b = new String("Hallo");\nSystem.out.println(a == b);\nSystem.out.println(a.equals(b));',['false, dann true','true, dann true','true, dann false','false, dann false'],'== vergleicht das Objekt, equals() den Inhalt.'],
+[7,'Wie viele Elemente hat int[] a = new int[4];, und kann es später wachsen?','',['4, und die Grösse ist fest.','4, und es wächst automatisch.','5, weil 0 mitzählt.','0, bis man etwas hineinschreibt.'],'Für wachsende Sammlungen nimmt man eine ArrayList.'],
+
+[8,'Was gibt der Code aus?','static int doppelt(int x) {\n  return x * 2;\n}\n// in main:\nSystem.out.println(doppelt(4) + 1);',['9','8','10','Fehler'],'doppelt(4) ergibt 8, plus 1 ist 9.'],
+[8,'Was macht return; in einer void-Methode?','',['Es beendet die Methode sofort, ohne Wert zurückzugeben.','Es gibt 0 zurück.','Es beendet das ganze Programm.','Es ist ein Syntaxfehler.'],'Praktisch, um bei ungültigen Werten früh abzubrechen.'],
+[8,'Wo ist der Fehler?','static int quadrat(int x) {\n  int q = x * x;\n}',['Es fehlt return q;, obwohl die Methode einen int zurückgeben muss.','int ist falsch, es muss void sein.','x darf nicht mit sich selbst multipliziert werden.','Es gibt keinen Fehler.'],'Der Compiler meldet: missing return statement.'],
+[8,'Wofür steht EVA?','',['Eingabe, Verarbeitung, Ausgabe','Ende, Variable, Array','Eingabe, Variable, Ausgabe','Erstellen, Verändern, Abspeichern'],'Einlesen, rechnen, ausgeben.'],
+[8,'Warum lagert man Code in Methoden aus?','',['Damit man ihn wiederverwenden kann, main lesbar bleibt und man Teile einzeln testen kann.','Damit das Programm mehr Zeilen hat.','Weil main höchstens 10 Zeilen haben darf.','Damit der Code schneller kompiliert.'],'Ein Fehler muss dann nur an einer Stelle korrigiert werden.'],
+[8,'Was gibt der Code aus?','ArrayList<String> l = new ArrayList<>();\nl.add("A");\nl.add("B");\nl.add("C");\nl.remove(0);\nSystem.out.println(l.size() + " " + l.get(0));',['2 B','3 A','2 A','2 C'],'Nach remove(0) rutscht B an Index 0.'],
+[8,'Was unterscheidet eine ArrayList von einem Array?','',['Eine ArrayList wächst und schrumpft automatisch, ein Array hat eine feste Grösse.','Ein Array kann mehr Typen speichern.','Eine ArrayList hat keinen Index.','Es gibt keinen Unterschied.'],'Dafür speichert eine ArrayList nur Objekte, also Integer statt int.'],
+[8,'Welche Datenstruktur passt, um zu jedem Benutzernamen eine Punktzahl zu speichern?','',['HashMap<String, Integer>','int[]','HashSet<String>','String'],'Eine HashMap speichert Schlüssel-Wert-Paare.'],
+[8,'Welche Datenstruktur passt, wenn jede E-Mail-Adresse nur einmal vorkommen darf?','',['HashSet<String>','ArrayList<String>','int[]','HashMap<Integer, Integer>'],'Ein HashSet speichert keine Duplikate.'],
+[8,'Welcher JavaDoc-Tag beschreibt einen Parameter?','',['@param','@return','@author','@version'],'@return beschreibt den Rückgabewert.'],
+[8,'Wie erzeugst du aus JavaDoc-Kommentaren eine HTML-Dokumentation?','',['Mit dem Werkzeug javadoc oder «Generate JavaDoc» in der IDE','Mit javac','Mit java -doc','Das geht nur von Hand'],'javadoc liest die /** */-Kommentare und erzeugt HTML-Seiten.'],
+[8,'Wo ist der Fehler?','ArrayList<int> zahlen = new ArrayList<>();',['Primitive Typen gehen nicht, es muss ArrayList<Integer> heissen.','ArrayList schreibt man klein.','Die spitzen Klammern sind falsch.','Es gibt keinen Fehler.'],'Sammlungen speichern Objekte. Zu int gehört die Hüllklasse Integer.']
+];
+
+const m319Goals = kn => M319_G.filter(g => g[0].startsWith('KN0' + kn));
+function m319Q(r){ return {kind:'mc', prompt:esc(r[1]) + (r[2] ? '<pre class="m319code">' + esc(r[2]) + '</pre>' : ''), opts:shuffle(r[3].map((t,k) => ({t:esc(t), ok:k===0}))), x:esc(r[4])}; }
+function bankM319(){ const B = []; M319_Q.forEach((r,i) => B.push({topic:m319T(r[0]), key:'q'+i, make:() => m319Q(r)})); return {topics:M319_KN.map(k => m319T(k[0])), bank:B}; }
+// shortcut: Bewertung prüft Begriffe per Regex, versteht keinen Sinn; für echtes Verstehen bräuchte es ein Sprachmodell
+const m319Eval = (g, txt) => g[3].map(c => c[0].split('&').every(p => new RegExp(p, 'i').test(txt.toLowerCase())));
+const m319Bar = p => p==null ? '<span class="muted">–</span>' : '<b class="' + (p>=75 ? 'm319ok' : p>=60 ? '' : 'gbad') + '">' + p + ' %</b>';
+function viewM319Overview(v){
+  const ub = store.get('m319.ub',{}), gs = store.get('m319.gs',{});
+  v.innerHTML = '<div class="card"><h3>So bereitest du dich auf ein KI-Gespräch vor</h3><ol><li><b>Spickzettel</b> lesen: Kernaussage und Eselsbrücke pro Lernziel.</li><li><b>Üben</b>: Multiple Choice, Code-Ausgabe vorhersagen, Fehler finden.</li><li><b>Gespräch</b> simulieren: frei antworten, bis du bei jedem Lernziel das Was und das Warum erklärst.</li></ol>'
+    + '<p class="muted">Im echten Gespräch bestehst du ab 60 %. Dein Ziel sind mindestens 75 %.</p></div>'
+    + '<div class="card"><h3>Kompetenznachweise</h3><div class="tablewrap"><table><tr><th>KN</th><th>Üben</th><th>Gespräch</th><th></th></tr>'
+    + M319_KN.map(([kn]) => '<tr><td>' + esc(m319T(kn)) + '<br><span class="muted" style="font-size:var(--t-xs)">' + m319Goals(kn).length + ' Lernziele</span></td><td>' + m319Bar(ub[kn]) + '</td><td>' + m319Bar(gs[kn]) + '</td>'
+      + '<td><div class="row" style="flex-wrap:nowrap"><button class="chip" data-x3="s' + kn + '">Spick</button><button class="chip" data-x3="u' + kn + '">Üben</button><button class="chip" data-x3="g' + kn + '">Gespräch</button></div></td></tr>').join('') + '</table></div></div>'
+    + '<div class="card quizhero"><div><h3>Prüfung KN00</h3><p class="muted" style="margin:0">Gemischte Fragen aus KN01 bis KN08, mit Note und Prognose. Läuft über den Tab «Probetest».</p></div><div class="row"><button class="btn" id="x3exam">Prüfung starten</button></div></div>';
+  v.querySelectorAll('[data-x3]').forEach(b => b.onclick = () => { const k = b.dataset.x3;
+    tab = 'gs'; exOpen = k; store.set('tab', tab); render(); window.scrollTo(0,0); });
+  $('#x3exam').onclick = () => { tab = 'test'; exOpen = null; store.set('tab', tab); render(); window.scrollTo(0,0); };
+}
+const m319Spick = () => M319_KN.map(([kn]) => ({t:m319T(kn), h:m319Goals(kn).map(g => '<div class="m319sp"><p class="muted" style="margin:0;font-size:var(--t-xs)">' + g[0] + ': ' + esc(g[1]) + '</p><p style="margin:var(--s1) 0">' + esc(g[5]) + '</p><p class="m319esel">Eselsbrücke: ' + esc(g[6]) + '</p></div>').join('')}));
+const M319U = {};
+function viewM319Ub(v, kn){
+  const st = M319U[kn] || (M319U[kn] = {qs:shuffle(M319_Q.filter(r => r[0]===kn)).map(r => Object.assign(m319Q(r), {topic:m319T(kn)})), done:false});
+  const pct = () => Math.round(st.qs.reduce((a,q) => a + q.score, 0) / st.qs.length * 100);
+  v.innerHTML = '<div class="row" style="justify-content:space-between;margin-bottom:var(--s3)"><button class="btn ghost" id="x3back">← Alle KNs</button><span class="muted">' + esc(m319T(kn)) + ' · Üben</span></div>'
+    + (st.done ? '<div class="card"><h3>' + pct() + ' % richtig</h3><p class="muted" style="margin:0">Lies bei jeder falschen Antwort die Erklärung. Ab 75 % bist du gut vorbereitet.</p></div>' : '')
+    + '<div id="x3list"></div><div class="row"><button class="btn" id="x3go">' + (st.done ? 'Nochmals, neu gemischt' : 'Prüfen') + '</button><button class="btn ghost" id="x3gs">Zum Gespräch</button></div>';
+  const list = $('#x3list'); st.qs.forEach((q,i) => list.appendChild(ptQEl(q, i, st.done)));
+  $('#x3back').onclick = () => { exOpen = null; render(); };
+  $('#x3gs').onclick = () => { exOpen = 'g' + kn; render(); window.scrollTo(0,0); };
+  $('#x3go').onclick = () => {
+    if(st.done){ delete M319U[kn]; viewM319Ub(v, kn); window.scrollTo(0,0); return; }
+    const open = st.qs.filter(q => !ptAnswered(q)).length;
+    if(open && !confirm(open + (open===1 ? ' Frage ist' : ' Fragen sind') + ' noch offen. Trotzdem prüfen?')) return;
+    st.qs.forEach(q => { q.score = scoreQ(q); }); st.done = true;
+    const b = store.get('m319.ub',{}); b[kn] = Math.max(b[kn] || 0, pct()); store.set('m319.ub', b);
+    viewM319Ub(v, kn); window.scrollTo(0,0);
+  };
+}
+let M319GS = null;
+function viewM319Gs(v, kn){
+  const goals = m319Goals(kn);
+  if(!M319GS || M319GS.kn!==kn) M319GS = {kn, i:0, log:[], txt:'', round:0, asked:[], res:{}, done:false};
+  const S = M319GS, head = '<div class="row" style="justify-content:space-between;margin-bottom:var(--s3)"><button class="btn ghost" id="x3back">← Alle KNs</button><span class="muted">' + esc(m319T(kn)) + ' · Gespräch</span></div>';
+  if(S.i >= goals.length){
+    const tot = Math.round(goals.reduce((a,g) => a + S.res[g[0]], 0) / goals.length);
+    v.innerHTML = head + '<div class="card"><h3>Ergebnis: ' + tot + ' %</h3><p class="' + (tot>=75 ? 'fb ok' : tot>=60 ? 'fb warn' : 'fb bad') + '">' + (tot>=75 ? 'Ziel erreicht: mindestens 75 %.' : tot>=60 ? 'Bestanden, aber unter deinem Ziel von 75 %.' : 'Noch nicht bestanden, es braucht 60 %.') + '</p>'
+      + '<div class="tablewrap"><table><tr><th>Lernziel</th><th>Ergebnis</th><th>Musterantwort</th></tr>' + goals.map(g => '<tr><td>' + g[0] + '</td><td>' + m319Bar(S.res[g[0]]) + '</td><td>' + esc(g[4]) + '</td></tr>').join('') + '</table></div>'
+      + '<div class="row" style="margin-top:var(--s3)"><button class="btn" id="x3again">Nochmals</button><button class="btn ghost" id="x3ub">Üben</button></div></div>';
+    if(!S.saved){ const b = store.get('m319.gs',{}); b[kn] = tot; store.set('m319.gs', b); S.saved = true; }
+    $('#x3back').onclick = () => { exOpen = null; render(); };
+    $('#x3again').onclick = () => { M319GS = null; viewM319Gs(v, kn); window.scrollTo(0,0); };
+    $('#x3ub').onclick = () => { exOpen = 'u' + kn; render(); window.scrollTo(0,0); };
+    return;
+  }
+  const g = goals[S.i];
+  if(!S.log.length) S.log.push(['b', g[2]]);
+  v.innerHTML = head + '<div class="card"><div class="meta">Lernziel ' + (S.i+1) + ' von ' + goals.length + ' · ' + g[0] + '</div><p class="muted" style="margin:0 0 var(--s3)">' + esc(g[1]) + '</p>'
+    + '<div class="m319chat" role="log">' + S.log.map(([w,t]) => '<div class="m319' + w + '">' + esc(t) + '</div>').join('') + '</div>'
+    + (S.done ? '<div class="row" style="margin-top:var(--s3)"><button class="btn" id="x3next">' + (S.i===goals.length-1 ? 'Zum Ergebnis' : 'Nächstes Lernziel') + '</button></div>'
+      : '<label class="muted" for="x3ans" style="display:block;margin-top:var(--s3);font-size:var(--t-xs)">Deine Antwort, in eigenen Worten mit Was und Warum</label><textarea id="x3ans" rows="4" style="width:100%"></textarea><div class="row" style="margin-top:var(--s2)"><button class="btn" id="x3send">Antworten</button><button class="btn ghost" id="x3skip">Weiss ich nicht</button></div>')
+    + '</div><p class="ghint">Die App prüft, ob die wichtigen Begriffe und Begründungen in deiner Antwort vorkommen, und fragt nach, wenn etwas fehlt. Sinn versteht sie nicht wirklich, im echten Gespräch zählt deine Erklärung.</p>';
+  $('#x3back').onclick = () => { exOpen = null; render(); };
+  const finish = () => { const h = m319Eval(g, S.txt), p = Math.round(h.filter(Boolean).length / h.length * 100); S.res[g[0]] = p; S.done = true;
+    S.log.push(['b', 'Bewertung: ' + p + ' %. Musterantwort: ' + g[4]]); viewM319Gs(v, kn); };
+  const send = () => { const t = $('#x3ans').value.trim(); if(!t) return;
+    S.log.push(['u', t]); S.txt += ' ' + t; S.round++;
+    const h = m319Eval(g, S.txt), miss = g[3].map((c,j) => j).filter(j => !h[j] && !S.asked.includes(j));
+    if(!miss.length || S.round >= 3) return finish();
+    S.asked.push(miss[0]);
+    S.log.push(['b', (t.length < 25 ? 'Erklär das bitte in ganzen Sätzen. ' : 'Gut, aber da fehlt noch etwas. ') + g[3][miss[0]][1]]);
+    viewM319Gs(v, kn); $('#x3ans').focus(); };
+  if(S.done){ $('#x3next').onclick = () => { S.i++; S.log = []; S.txt = ''; S.round = 0; S.asked = []; S.done = false; viewM319Gs(v, kn); window.scrollTo(0,0); }; return; }
+  $('#x3send').onclick = send;
+  $('#x3ans').addEventListener('keydown', ev => { if(ev.key==='Enter' && (ev.ctrlKey || ev.metaKey)){ ev.preventDefault(); send(); } });
+  $('#x3skip').onclick = () => { S.log.push(['u', 'Weiss ich nicht.']); finish(); };
+}
+function viewM319Ex(v){
+  const m = /^([ugs])([1-8])$/.exec(exOpen || '');
+  if(!m) return viewM319Overview(v);
+  if(m[1]==='s'){ const t = m319Spick()[+m[2]-1]; v.innerHTML = '<div class="row" style="margin-bottom:var(--s3)"><button class="btn ghost" id="x3back">← Alle KNs</button></div><div class="card"><h3>Spickzettel ' + esc(t.t) + '</h3>' + t.h + '</div>'; $('#x3back').onclick = () => { exOpen = null; render(); }; return; }
+  return m[1]==='u' ? viewM319Ub(v, +m[2]) : viewM319Gs(v, +m[2]);
 }
 const BANKS = {bw:bankBW, bz:bankFRA, bn:bankBN};
 
@@ -3187,13 +3592,13 @@ function render(){
   if(cur==='grades'){ renderSide(); const rs = document.documentElement.style; rs.setProperty('--c', G_TILE.g2); rs.setProperty('--g1', G_TILE.g1); rs.setProperty('--g2', G_TILE.g2); renderKey = 'grades'; return viewGrades(); }
   if(!SUBJECTS.some(x => x.id===cur)) cur = 'bw';
   if(tab==='lab' && cur!=='bn') tab = 'overview';
-  if(tab==='kn' && cur!=='m3') tab = 'overview';
+  if((tab==='kn' || tab==='gs') && cur!=='m3') tab = 'overview';
   renderSide();
   const s = SUBJECTS.find(x => x.id===cur);
   const rs = document.documentElement.style; rs.setProperty('--c', s.color); rs.setProperty('--g1', s.g1); rs.setProperty('--g2', s.g2);
   const st = subjStatus(s), chapter = s.id==='bw' ? BW.chapter : s.id==='bn' ? BN.chapter : s.id==='bz' ? FRA.chapter : s.id==='m3' ? 'Leitfaden: 16 Kompetenznachweise in 4 Niveaus' : 'Noch keine Unterlagen eingebaut';
   const kick = s.kick || ['BIN26a','BMZ'].concat(s.teacher ? [s.teacher] : []).join(' · '), R = 34, C = 2*Math.PI*R;
-  const tabs = s.id==='m3' ? [['overview','Leitfaden'],['kn','Kompetenzen'],['theory','Theorie'],['ex','Übungen'],['test','Probetest'],['cards','Karteikarten'],['notes','Notizen']] : [['overview','Übersicht'],['theory','Theorie'],...(s.id==='bn' ? [['lab','Labor']] : []),['ex','Übungen'],['test','Probetest'],['cards','Karteikarten'],['notes','Notizen']];
+  const tabs = s.id==='m3' ? [['overview','Leitfaden'],['kn','Kompetenzen'],['gs','KI-Gespräch'],['theory','Theorie'],['ex','Übungen'],['test','Probetest'],['cards','Karteikarten'],['notes','Notizen']] : [['overview','Übersicht'],['theory','Theorie'],...(s.id==='bn' ? [['lab','Labor']] : []),['ex','Übungen'],['test','Probetest'],['cards','Karteikarten'],['notes','Notizen']];
   $('#main').innerHTML = `
     <header class="hero"><span class="hwm">${iconSvg(s.id)}</span><span class="hicon">${iconSvg(s.id)}</span>
       <div class="htxt"><p class="hkick">${esc(kick)}</p><h2>${esc(s.label)}</h2><p class="hsub">${esc(chapter)}</p></div>
@@ -3202,7 +3607,7 @@ function render(){
     <div id="view"></div>`;
   document.querySelectorAll('.tab').forEach(b => b.onclick = () => { tab=b.dataset.t; store.set('tab',tab); exOpen=null; render(); });
   const v = $('#view'), rk = cur+'|'+tab+'|'+exOpen; if(rk!==renderKey){ v.classList.add('enter'); renderKey = rk; }
-  ({overview:viewOverview, theory:viewTheory, ex:viewExercises, lab:viewLab, kn:viewM3Kn, test:viewPTest, cards:viewCards, notes:viewNotes})[tab](v, s);
+  ({overview:viewOverview, theory:viewTheory, ex:viewExercises, lab:viewLab, kn:viewM3Kn, gs:viewM319Ex, test:viewPTest, cards:viewCards, notes:viewNotes})[tab](v, s);
   // Breite Tabellen scrollen in ihrem Kasten statt die ganze Seite zu verbreitern
   if(tab==='theory' || tab==='kn') v.querySelectorAll('table').forEach(t => { if(!t.closest('.tablewrap')){ const w = document.createElement('div'); w.className = 'tablewrap'; t.replaceWith(w); w.appendChild(t); } });
 }
@@ -6150,7 +6555,7 @@ function bankM3(){
   addCardQs(B, M3_CARDS, 'Begriffe'); if(M3_CARDS.length >= 4) used.add('Begriffe');
   return {topics:M3_T.map(t => t.t).filter(t => used.has(t)).concat(used.has('Begriffe') ? ['Begriffe'] : []), bank:B};
 }
-BANKS.m3 = bankM3;
+BANKS.m3 = () => { const a = bankM3(), b = bankM319(); return {topics:a.topics.concat(b.topics), bank:a.bank.concat(b.bank.map(x => Object.assign({}, x, {key:'kn' + x.key})))}; };
 
 
 /* ---------- Noten und Durchschnitt ---------- */
@@ -6997,7 +7402,7 @@ async function cloudLogout(wipe){
 function cloudApplied(keys){
   if(!keys.length) return;
   const ae = document.activeElement, typing = ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && ae.closest('#main');
-  const busy = typing || exOpen!==null || (PT[cur] && PT[cur].phase==='run') || (cur==='bn' && tab==='lab' && MD.r) || (cur==='friends' && DU.play && !DU.play.done);
+  const busy = typing || exOpen!==null || (PT[cur] && PT[cur].phase==='run') || (cur==='bn' && tab==='lab' && MD.r) || (cur==='friends' && DU.play && !DU.play.done) || (cur==='m3' && tab==='gs' && M319GS && !M319GS.done);
   if(!busy){ render(); return; }
   renderSide();
   let t = $('#cltoast'); if(!t){ t = document.createElement('div'); t.id = 'cltoast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
