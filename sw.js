@@ -1,5 +1,5 @@
-const CACHE = 'lerntool-bbw-v1';
-const FILES = ['./index.html', './manifest.webmanifest'];
+const CACHE = 'lerntool-bbw-v2';
+const FILES = ['./index.html', './manifest.webmanifest', './styles.css', './subjects.js', './app.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));

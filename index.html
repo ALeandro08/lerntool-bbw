@@ -4,16 +4,45 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f6fa">
+  <meta name="description" content="Fächer, Notizen und Karteikarten für die BBW.">
   <title>Lerntool BBW</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <script src="subjects.js" defer></script>
+  <script src="app.js" defer></script>
 </head>
 <body>
-  <main>
-    <h1>Lerntool BBW</h1>
-    <p>Mein Lernbereich für die Berufsbildungsschule Winterthur.</p>
-  </main>
-  <script>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.warn);
-  </script>
+  <a class="skip" href="#main">Zum Inhalt</a>
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="brand" id="home" type="button">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span>Lerntool <small>BBW Winterthur</small></span>
+      </button>
+      <nav aria-label="Fächer">
+        <div class="nav-heading"><span>Fächer</span><button class="icon-button" id="add-subject" type="button" aria-label="Fach hinzufügen">+</button></div>
+        <div id="subject-nav"></div>
+      </nav>
+      <p class="privacy">Eigene Einträge und Lernfortschritt bleiben in diesem Browser.</p>
+    </aside>
+
+    <main id="main" tabindex="-1">
+      <div id="view"></div>
+      <p class="status" id="status" role="status"></p>
+      <noscript>Aktiviere JavaScript, um deine Fächer und Lernkarten zu öffnen.</noscript>
+    </main>
+  </div>
+
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="edit-form" method="dialog">
+      <h2 id="editor-title"></h2>
+      <div id="fields" class="fields"></div>
+      <p id="form-error" class="error" role="alert"></p>
+      <div class="actions">
+        <button type="button" id="cancel">Abbrechen</button>
+        <button type="submit" class="primary" id="save">Speichern</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>
