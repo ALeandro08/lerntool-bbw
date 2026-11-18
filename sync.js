@@ -17,16 +17,29 @@ function syncPack(){
 }
 function syncParse(txt){
   let o; try{ o = JSON.parse(String(txt).trim()); }catch(e){ throw new Error('Das ist kein gültiger Lerntool-Stand. Kopiere den ganzen Code.'); }
-  if(!o || o.app!=='lerntool-bbw' || !o.data || typeof o.data!=='object') throw new Error('Das ist kein Stand aus diesem Lerntool.');
-  for(const [k,v] of Object.entries(o.data)){ let okv = typeof v==='string' && !SYNC_SKIP.includes('bb.'+k); if(okv){ try{ JSON.parse(v); }catch(e){ okv = false; } } if(!okv) throw new Error('Der Stand ist beschädigt. Sichere ihn auf dem anderen Gerät nochmals.'); }
+  if(!o || o.app!=='lerntool-bbw' || o.v !== 1 || !record(o.data)) throw new Error('Das ist kein Stand aus diesem Lerntool.');
+  for(const [k,v] of Object.entries(o.data)){
+    const validKey = /^[a-zA-Z][a-zA-Z0-9.-]{0,159}$/.test(k) && !SYNC_SKIP.includes('bb.'+k) && !Object.hasOwn(Object.prototype, k);
+    try {
+      if(!validKey || typeof v !== 'string') throw new Error();
+      JSON.parse(v);
+    } catch { throw new Error('Der Stand ist beschädigt. Sichere ihn auf dem anderen Gerät nochmals.'); }
+  }
   return o;
 }
 function syncApply(o){
-  const backup = JSON.stringify(syncPack());
-  Object.keys(localStorage).filter(k => k.startsWith('bb.') && !SYNC_SKIP.includes(k)).forEach(k => localStorage.removeItem(k));
-  Object.entries(o.data).forEach(([k,v]) => localStorage.setItem('bb.'+k, v));
-  localStorage.setItem('bb.sync.backup', backup);
-  const now = Date.now(), meta = syncMeta(); Object.keys(JSON.parse(backup).data).concat(Object.keys(o.data)).forEach(k => { if(cloudKey(k)) meta[k] = now; }); lsSet('sync.meta', meta);
+  const backup = syncPack();
+  localStorage.setItem('bb.sync.backup', JSON.stringify(backup));
+  const replace = (before, after) => {
+    Object.keys(before).forEach(key => localStorage.removeItem('bb.' + key));
+    Object.entries(after).forEach(([key, value]) => localStorage.setItem('bb.' + key, value));
+  };
+  try { replace(backup.data, o.data); }
+  catch(error){
+    replace(o.data, backup.data);
+    throw error;
+  }
+  const now = Date.now(), meta = syncMeta(); Object.keys(backup.data).concat(Object.keys(o.data)).forEach(k => { if(cloudKey(k)) meta[k] = now; }); lsSet('sync.meta', meta);
   location.reload();
 }
 const syncWhen = iso => { const d = new Date(iso); return isNaN(d) ? 'unbekannt' : d.toLocaleString('de-CH', {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'}); };
@@ -47,8 +60,12 @@ function openSync(){
     <p class="fb" id="syncMsg" role="status"></p></details>
     ${bk ? `<h4>Rückgängig</h4><p class="muted" style="font-size:var(--t-xs);margin:0 0 var(--s2);font-family:var(--f-ui)">Vor dem letzten Laden wurde dein Stand vom ${esc(syncWhen(bk.at))} gesichert.</p><button class="btn ghost" id="syncUndo">Diesen Stand wiederherstellen</button>` : ''}`;
   const msg = (t, ok) => { const m = $('#syncMsg'); m.className = 'fb ' + (ok ? 'ok' : 'bad'); m.textContent = t; };
+  const applyBackup = backup => {
+    try { syncApply(backup); }
+    catch { msg('Der Stand konnte nicht geladen werden. Prüfe, ob im Browser genügend Speicher verfügbar ist.', false); }
+  };
   const load = txt => { let o; try{ o = syncParse(txt); }catch(e){ msg(e.message, false); return; }
-    if(confirm(`Stand vom ${syncWhen(o.at)} laden? Dein jetziger Stand auf diesem Gerät wird ersetzt. Er wird vorher gesichert und lässt sich hier wiederherstellen.`)) syncApply(o); };
+    if(confirm(`Stand vom ${syncWhen(o.at)} laden? Dein jetziger Stand auf diesem Gerät wird ersetzt. Er wird vorher gesichert und lässt sich hier wiederherstellen.`)) applyBackup(o); };
   $('#syncFile').onclick = () => { const p = syncPack(), url = URL.createObjectURL(new Blob([JSON.stringify(p)], {type:'application/json'})), a = document.createElement('a');
     a.href = url; a.download = `lerntool-stand-${p.at.slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
     msg('Datei gespeichert. Lade sie auf dem anderen Gerät mit «Datei laden».', true); };
@@ -58,7 +75,7 @@ function openSync(){
   $('#syncPick').onclick = () => $('#syncIn').click();
   $('#syncIn').onchange = ev => { const f = ev.target.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = () => load(rd.result); rd.onerror = () => msg('Die Datei liess sich nicht lesen.', false); rd.readAsText(f); ev.target.value = ''; };
   $('#syncUse').onclick = () => { const t = $('#syncCode').value; if(!t.trim()){ msg('Füge zuerst einen Code ein.', false); return; } load(t); };
-  if($('#syncUndo')) $('#syncUndo').onclick = () => { if(confirm('Den gesicherten Stand wiederherstellen? Dein jetziger Stand wird dafür ebenfalls gesichert.')) syncApply(bk); };
+  if($('#syncUndo')) $('#syncUndo').onclick = () => { if(confirm('Den gesicherten Stand wiederherstellen? Dein jetziger Stand wird dafür ebenfalls gesichert.')) applyBackup(bk); };
   accountBind();
   const tb = document.createElement('div'); tb.className = 'row'; tb.style.marginTop = 'var(--s3)'; const dsg = () => document.documentElement.dataset.design==='studio' ? 'studio' : 'apple';
   tb.innerHTML = '<button class="chip" type="button" id="dlgTheme">Hell / Dunkel</button><span class="muted" style="font:var(--t-xs)/1.4 var(--f-ui);margin-left:var(--s2)">Design:</span><button class="chip" type="button" data-dsg="apple">Apple</button><button class="chip" type="button" data-dsg="studio">Studio</button>';
@@ -69,7 +86,8 @@ function openSync(){
 }
 
 /* ---------- Konto und automatischer Abgleich über Firebase (nur fetch, keine fremden Skripte) ---------- */
-// Diese zwei Werte sind laut Firebase öffentlich. Geschützt wird über die Firestore-Regeln: jedes Konto liest und schreibt nur sein eigenes Dokument.
+// Optional: LERNTOOL_FIREBASE vor sync.js mit dem API-Key und der ID des eigenen Projekts setzen.
+// Die Zugriffsregeln für Konten und Gruppen müssen in diesem Projekt eingerichtet sein.
 const FB = window.LERNTOOL_FIREBASE || {apiKey:'', projectId:''};
 const fbOn = () => !!(FB.apiKey && FB.projectId);
 const CLOUD_LOCAL = ['theme', 'design', 'subject', 'tab', 'auth', 'grpseen', 'grppub', 'grplast'];   // gilt nur für dieses Gerät

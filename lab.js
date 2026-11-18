@@ -35,24 +35,27 @@ function networkResult(client, server, service) {
 }
 
 const FORMULAS = [
-  {title:'Bit und Byte', formula:'Bit = Byte × 8', create:() => {
+  {title:'Bit und Byte', formula:'Bit = Byte × 8', result:'Bit', terms:['Byte','×','8'], create:() => {
     const bytes = 50 * randomInteger(2, 40);
     return {q:`Rechne ${bytes} Byte in Bit um.`, answer:bytes * 8, unit:'Bit'};
   }},
-  {title:'Dateigrösse eines Bildes', formula:'Byte = Breite × Höhe × Farbtiefe ÷ 8', create:() => {
+  {title:'Dateigrösse eines Bildes', formula:'Byte = Breite × Höhe × Farbtiefe ÷ 8', result:'Byte', terms:['Breite','×','Höhe','×','Farbtiefe','÷','8'], create:() => {
     const width = 80 * randomInteger(4, 16), height = 60 * randomInteger(4, 16);
     return {q:`Unkomprimiertes Bild: ${width} × ${height} Pixel, 24 Bit pro Pixel. Wie gross ist es in Byte?`, answer:width * height * 3, unit:'Byte'};
   }},
-  {title:'Übertragungszeit', formula:'Sekunden = Dateigrösse in Mbit ÷ Datenrate in Mbit/s', create:() => {
+  {title:'Übertragungszeit', formula:'Sekunden = Dateigrösse in Mbit ÷ Datenrate in Mbit/s', result:'Sekunden', terms:['Dateigrösse in Mbit','÷','Datenrate in Mbit/s'], create:() => {
     const rate = 8 * randomInteger(1, 10), seconds = randomInteger(5, 80);
     return {q:`Wie lange dauert die Übertragung von ${rate * seconds / 8} MB bei ${rate} Mbit/s ohne Overhead?`, answer:seconds, unit:'s'};
   }}
 ];
 const randomInteger = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
-function viewFormulas(view) {
+function viewFormulas(view, mode = 'calc') {
   view.innerHTML = `<div class="row" style="margin-bottom:var(--s3)"><button class="btn ghost" id="formulasBack">← Alle Übungen</button></div>
-    <div class="card"><h3>Formel-Trainer</h3><details><summary>Formelblatt</summary><ul>
+    <div class="card"><h3>Formel-Trainer</h3><div class="subtabs">
+      <button class="chip${mode === 'calc' ? ' on' : ''}" id="calcMode">Rechnen</button>
+      <button class="chip${mode === 'build' ? ' on' : ''}" id="buildMode">Formel bauen</button></div>
+      <details><summary>Formelblatt</summary><ul>
       ${FORMULAS.map(item => `<li><b>${item.title}</b> · ${item.formula}</li>`).join('')}</ul></details>
       <form id="formulaExercise">
         <div class="lab-controls"><label>Thema <select name="topic">${FORMULAS.map((item, index) =>
@@ -66,7 +69,13 @@ function viewFormulas(view) {
       </form>
     </div>`;
   $('#formulasBack', view).onclick = () => openEx(null);
+  $('#calcMode', view).onclick = () => viewFormulas(view, 'calc');
+  $('#buildMode', view).onclick = () => viewFormulas(view, 'build');
   const form = $('#formulaExercise', view), feedback = $('#formulaFeedback', view);
+  if(mode === 'build'){
+    renderFormulaBuilder(form);
+    return;
+  }
   let exercise;
   function generate() {
     exercise = FORMULAS[Number(form.elements.topic.value)].create();
@@ -86,4 +95,32 @@ function viewFormulas(view) {
     feedback.textContent = correct ? 'Richtig.' : 'Noch nicht richtig. Prüfe Einheiten und Formel.';
   };
   generate();
+}
+
+function renderFormulaBuilder(form) {
+  const operators = ['×', '÷'];
+  const terms = [...new Set(FORMULAS.flatMap(item => item.terms).filter(term => !operators.includes(term)))];
+  const options = '<option value="">–</option>' + terms.map(term => `<option>${term}</option>`).join('');
+  form.innerHTML = `<div class="lab-controls"><label>Formel <select name="topic">${FORMULAS.map((item, index) =>
+    `<option value="${index}">${item.title}</option>`).join('')}</select></label></div>
+    <div class="row" id="formulaParts"></div><div class="row"><button class="btn" type="submit">Prüfen</button></div>
+    <p class="fb" id="builderFeedback" role="status"></p>`;
+  const parts = $('#formulaParts', form), feedback = $('#builderFeedback', form);
+  const selected = () => FORMULAS[Number(form.elements.topic.value)];
+  function renderParts(){
+    const item = selected();
+    parts.innerHTML = `<b>${item.result} =</b>` + item.terms.map((term, index) =>
+      operators.includes(term) ? `<span>${term}</span>` : `<select required aria-label="Position ${index + 1}" data-part="${index}">${options}</select>`).join('');
+    feedback.textContent = '';
+  }
+  form.elements.topic.onchange = renderParts;
+  form.onsubmit = event => {
+    event.preventDefault();
+    const item = selected();
+    const answers = [...parts.querySelectorAll('[data-part]')];
+    const correct = answers.every(input => input.value === item.terms[Number(input.dataset.part)]);
+    feedback.className = 'fb ' + (correct ? 'ok' : 'bad');
+    feedback.textContent = (correct ? 'Richtig. ' : 'Vergleiche mit der Lösung: ') + item.formula;
+  };
+  renderParts();
 }

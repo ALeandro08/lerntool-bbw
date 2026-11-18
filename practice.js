@@ -338,3 +338,135 @@ document.addEventListener('keydown', ev => {
   if(exOpen!=='quiz' || !quiz || tab!=='ex' || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
   if(quiz.picked===null && /^[1-4]$/.test(ev.key) && quiz.qs[quiz.i]) answerQuiz(+ev.key-1);
 });
+
+const DISCUSSIONS = {
+  'm162-m164': [
+    {
+      topic:'UML-Multiplizitäten',
+      prompt:'Ein Kunde kann auch ohne Bestellung im System stehen. Jede Bestellung gehört genau einem Kunden. Erkläre die Beziehung in beide Richtungen.',
+      model:'Am Ende Kunde steht 1..1, weil jede Bestellung genau einen Kunden hat. Am Ende Bestellung steht 0..*, weil ein Kunde keine, eine oder mehrere Bestellungen haben kann.',
+      checks:[
+        [/(1\s*\.\.\s*1|genau ein)/, 'Wie viele Kunden gehören zu einer einzelnen Bestellung?'],
+        [/(0\s*\.\.\s*\*|null|keine)/, 'Kann ein Kunde ohne Bestellung im System stehen?'],
+        [/(0\s*\.\.\s*\*|mehrere|beliebig)/, 'Wie viele Bestellungen darf ein Kunde maximal haben?']
+      ]
+    },
+    {
+      topic:'Excel und Datenanalyse',
+      prompt:'Du möchtest monatliche Messwerte mehrerer Sensoren vergleichen. Wie strukturierst du die Daten und welches Diagramm nutzt du für den zeitlichen Verlauf?',
+      model:'Halte Datum, Sensor und Messwert in eigenen Spalten fest. Verwende für alle Messwerte eine einheitliche Einheit. Ein Liniendiagramm mit den Monaten auf der X-Achse zeigt den Verlauf.',
+      checks:[
+        [/(spalt|zeil|tabell)/, 'Wie würdest du die Daten in einer Tabelle anordnen?'],
+        [/(einheit|umrechnen)/, 'Was muss für einen fairen Vergleich bei den Einheiten gelten?'],
+        [/(linie|kurve)/, 'Welcher Diagrammtyp zeigt einen zeitlichen Verlauf?']
+      ]
+    }
+  ],
+  m231: [
+    {
+      topic:'Anmeldung und Rechte',
+      prompt:'Eine Person meldet sich erfolgreich an und versucht danach, einen Admin-Bereich zu öffnen. Welche zwei Prüfungen spielen hier eine Rolle?',
+      model:'Bei der Anmeldung prüft die Authentifizierung die Identität. Beim Öffnen des Admin-Bereichs prüft die Autorisierung, ob diese Person die nötige Rolle oder Berechtigung hat.',
+      checks:[
+        [/(authentifiz|identität|identitaet)/, 'Was wird bei der Anmeldung über die Person geprüft?'],
+        [/(autorisier|berechtig|rechte|rolle)/, 'Was muss der Dienst beim Zugriff auf den Admin-Bereich prüfen?']
+      ]
+    },
+    {
+      topic:'Hashing und Datenschutz',
+      prompt:'Warum kann ein Prüfsummenvergleich eine geänderte Datei erkennen? Warum ist das nicht dasselbe wie Verschlüsselung?',
+      model:'Eine Hashfunktion berechnet einen Prüfwert der Datei. Vergleiche ihn mit einem vertrauenswürdigen Referenzwert. Verschlüsselung ist mit einem passenden Schlüssel umkehrbar.',
+      checks:[
+        [/(prüfwert|prüfsumme|hash)/, 'Welchen Wert berechnest du für die Datei?'],
+        [/(referenz|vergleich|erwartet)/, 'Womit vergleichst du den berechneten Wert?'],
+        [/(schlüssel|umkehrbar|entschlüss)/, 'Was kannst du mit verschlüsselten Daten und dem richtigen Schlüssel tun?']
+      ]
+    }
+  ],
+  m293: [
+    {
+      topic:'HTML und CSS',
+      prompt:'Du baust eine Seite mit einer Überschrift und drei Karten nebeneinander. Was machst du mit HTML und was mit CSS?',
+      model:'HTML beschreibt die Struktur, zum Beispiel mit einer Hauptüberschrift und drei Abschnitten. CSS legt das Kartenlayout fest, etwa mit Grid und drei Spalten.',
+      checks:[
+        [/(struktur|überschrift|h1)/, 'Wie drückst du die Bedeutung der Überschrift im HTML aus?'],
+        [/(layout|spalt|grid|flex)/, 'Wie legst du in CSS die Anordnung der Karten fest?']
+      ]
+    },
+    {
+      topic:'Next.js App Router',
+      prompt:'Was änderst du in deinem eigenen Projekt, wenn auf der Startseite eine neue Überschrift und auf allen Seiten eine gemeinsame Navigationsleiste erscheinen sollen?',
+      model:'Die Überschrift der Startseite kommt in src/app/page.js. Die gemeinsame Navigation gehört in src/app/layout.js, damit dieselbe Leiste auch andere Seiten umgibt.',
+      checks:[
+        [/\bpage\.js\b/, 'Welche Datei liefert den Inhalt der Startseite?'],
+        [/\blayout\.js\b/, 'Welche Datei umgibt mehrere Seiten mit gemeinsamer Struktur?']
+      ]
+    }
+  ]
+};
+
+function viewDiscussion(view, subject) {
+  const prompts = DISCUSSIONS[subject.id];
+  const results = [];
+  let index = 0;
+  let log = [];
+  let attempts = 0;
+  let score = null;
+  let answers = '';
+
+  function show() {
+    if(index === prompts.length){
+      const key = 'discussion.' + subject.id;
+      const history = store.get(key, {});
+      results.forEach((result, i) => { history[prompts[i].topic] = result; });
+      store.set(key, history);
+      view.innerHTML = `<div class="card"><h3>Gespräch abgeschlossen</h3><ul>
+        ${prompts.map((prompt, i) => `<li><b>${esc(prompt.topic)}</b> · ${results[i]} %<p>${esc(prompt.model)}</p></li>`).join('')}
+        </ul><div class="row"><button class="btn" id="discussionAgain">Nochmals üben</button></div></div>`;
+      $('#discussionAgain', view).onclick = () => viewDiscussion(view, subject);
+      return;
+    }
+    const prompt = prompts[index];
+    view.innerHTML = `<div class="card"><h3>Gesprächssimulation</h3>
+      <p class="meta">${esc(prompt.topic)} · Lernziel ${index + 1} von ${prompts.length}</p>
+      <p>${esc(prompt.prompt)}</p>
+      <div role="log">${log.map(item => `<p class="expl study-text">${esc(item)}</p>`).join('')}</div>
+      ${score === null ? `<form id="discussionAnswer"><label for="discussionText">Deine Antwort in eigenen Worten</label>
+        <textarea id="discussionText" required maxlength="2000"></textarea><div class="row">
+        <button class="btn" type="submit">Antworten</button><button class="btn ghost" type="button" id="discussionSkip">Musterantwort zeigen</button></div></form>`
+        : `<div class="row"><button class="btn" id="discussionNext">${index + 1 === prompts.length ? 'Zum Ergebnis' : 'Nächstes Lernziel'}</button></div>`}
+      <p class="ghint">Die Simulation prüft Begriffe lokal. Die Musterantwort hilft dir, die Erklärung inhaltlich zu vergleichen.</p></div>`;
+    function finish(matched) {
+      score = Math.round(matched / prompt.checks.length * 100);
+      results.push(score);
+      log.push(`${score} % der Begriffe erkannt. Musterantwort: ${prompt.model}`);
+      show();
+    }
+    if(score !== null){
+      $('#discussionNext', view).onclick = () => {
+        index++;
+        log = [];
+        attempts = 0;
+        score = null;
+        answers = '';
+        show();
+      };
+      return;
+    }
+    $('#discussionAnswer', view).onsubmit = event => {
+      event.preventDefault();
+      const answer = $('#discussionText', view).value.trim();
+      if(!answer) return;
+      log.push('Du: ' + answer);
+      answers += ' ' + normalizedAnswer(answer);
+      attempts++;
+      const missing = prompt.checks.filter(([pattern]) => !pattern.test(answers));
+      if(!missing.length || attempts === 3){ finish(prompt.checks.length - missing.length); return; }
+      log.push(missing[0][1]);
+      show();
+      $('#discussionText', view).focus();
+    };
+    $('#discussionSkip', view).onclick = () => finish(prompt.checks.filter(([pattern]) => pattern.test(answers)).length);
+  }
+  show();
+}

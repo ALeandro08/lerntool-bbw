@@ -145,8 +145,9 @@ function render() {
   const subject = color;
   const tabs = [['overview','Übersicht'], ['theory','Theorie'], ['ex','Übungen'], ['test','Probetest'], ['cards','Karteikarten'], ['notes','Notizen']];
   if(subject.id === 'm117') tabs.splice(2, 0, ['lab','Labor']);
+  if(Object.hasOwn(DISCUSSIONS, subject.id)) tabs.splice(3, 0, ['discussion','Gespräch']);
   if(!tabs.some(([key]) => key === tab)) tab = 'overview';
-  const views = {overview:viewOverview, theory:viewTheory, ex:viewExercises, test:viewPTest, cards:viewCards, notes:viewNotes, lab:viewLab};
+  const views = {overview:viewOverview, theory:viewTheory, ex:viewExercises, test:viewPTest, cards:viewCards, notes:viewNotes, lab:viewLab, discussion:viewDiscussion};
   const progress = mastery(subject.id);
   const circumference = 2 * Math.PI * 34;
   $('#main').innerHTML = `<header class="hero"><span class="hwm">${iconSvg(subject.id)}</span><span class="hicon">${iconSvg(subject.id)}</span>
