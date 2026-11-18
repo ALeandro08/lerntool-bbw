@@ -1,4 +1,4 @@
-const CACHE = 'lerntool-bbw-v4';
+const CACHE = 'lerntool-bbw-v5';
 const FILES = [
   './index.html', './manifest.webmanifest', './styles.css', './subjects.js', './questions.js',
   './app.js', './practice.js', './grades.js', './sync.js', './lab.js', './start.js',

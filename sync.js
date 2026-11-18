@@ -80,7 +80,11 @@ const lsSet = (k, v) => { try{ localStorage.setItem('bb.'+k, JSON.stringify(v));
 const syncMeta = () => lsGet('sync.meta') || {};
 // Jede Änderung bekommt einen Zeitstempel, damit beim Abgleich die neuere gewinnt
 const storeSetRaw = store.set;
-store.set = (k, v) => { storeSetRaw(k, v); if(cloudKey(k)){ const m = syncMeta(); m[k] = Date.now(); lsSet('sync.meta', m); cloudSoon(); } };
+store.set = (k, v) => {
+  if(!storeSetRaw(k, v)) return false;
+  if(cloudKey(k)){ const m = syncMeta(); m[k] = Date.now(); lsSet('sync.meta', m); cloudSoon(); }
+  return true;
+};
 
 function localEntries(){
   const m = syncMeta(), e = {};
@@ -319,7 +323,14 @@ async function frPublish(force, gg){
 const frPubSoon = () => { clearTimeout(FR.pubT); FR.pubT = setTimeout(() => { frPublish().catch(() => {}); }, 15000); };
 // Lernen merken: jede Änderung an Lernständen zählt als «zuletzt aktiv»
 const storeSetCloud = store.set;
-store.set = (k, v) => { storeSetCloud(k, v); if(!/^(grades|grp|subject|tab|theme|design|notes|sync|auth|act)/.test(k)){ lsSet('grplast', Date.now()); if(frGrp() && frOn()) frPubSoon(); } };
+store.set = (k, v) => {
+  if(!storeSetCloud(k, v)) return false;
+  if(!/^(grades|grp|subject|tab|theme|design|notes|sync|auth|act)/.test(k)){
+    lsSet('grplast', Date.now());
+    if(frGrp() && frOn()) frPubSoon();
+  }
+  return true;
+};
 
 const frName = uid => { const m = FR.members && FR.members.find(x => x.id===uid); return m ? frStr(m.name, 30) : ''; };
 function frNotify(fresh){

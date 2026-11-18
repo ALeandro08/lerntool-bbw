@@ -12,7 +12,22 @@ const starterSubjects = [
       {
         id: 'mathe-grundlagen', type: 'note', source: 'OneNote',
         title: 'Grundlagen und Logik',
-        body: 'Wiederhole die Grundlagen und stelle für NICHT, UND und ODER je eine Wahrheitstabelle auf.'
+        body: 'NICHT kehrt den Wahrheitswert um. UND ist nur wahr, wenn beide Aussagen wahr sind. Das inklusive ODER ist wahr, sobald mindestens eine Aussage wahr ist.\n\nPrüfe für A und B alle vier Kombinationen: falsch/falsch, falsch/wahr, wahr/falsch und wahr/wahr.'
+      },
+      {
+        id: 'mathe-stellenwerte', type: 'note', source: 'Teams',
+        title: 'Stellenwerte und SI-Präfixe',
+        body: 'Lies Binärzahlen von rechts mit den Gewichten 1, 2, 4, 8, … . Für Hexadezimal bündelst du jeweils vier Bits. In der Basis 16 stehen A bis F für 10 bis 15.\n\n0,000 004 m = 4 × 10⁻⁶ m = 4 µm. In der Ingenieurschreibweise ist der Exponent ein Vielfaches von drei.'
+      },
+      {
+        id: 'mathe-dateien', type: 'note', source: 'Teams',
+        title: 'Dateigrössen und Übertragungen',
+        body: '1 Byte = 8 Bit. Bei einem unkomprimierten Bild multiplizierst du Breite, Höhe und Farbtiefe. Bei einem Video multiplizierst du zusätzlich mit der Bildrate und der Dauer.\n\nFür die Übertragungszeit brauchst du dieselbe Einheit oben und unten: 40 MB entsprechen 320 Mbit. Bei 16 Mbit/s dauert die Übertragung 20 s, wenn die Rate konstant ist.'
+      },
+      {
+        id: 'mathe-potenz-theorie', type: 'note', source: 'Teams',
+        title: 'Potenzen und Logarithmen',
+        body: 'Bei gleicher Basis addierst du beim Multiplizieren und subtrahierst beim Dividieren die Exponenten. Eine negative Hochzahl bedeutet den Kehrwert.\n\nDer Logarithmus beantwortet die Frage nach dem Exponenten. log₅(25) = 2, weil 5² = 25.'
       },
       {
         id: 'mathe-zahlen', type: 'card', source: 'Teams',
@@ -60,6 +75,11 @@ const starterSubjects = [
         id: 'm162-excel', type: 'card', source: 'Teams',
         title: 'Wie berechnest du in Excel den Mittelwert von B2 bis B9 und stellst die Werte nach Monaten dar?',
         body: 'In einer deutschsprachigen Excel-Oberfläche berechnet =MITTELWERT(B2:B9) den Durchschnitt. Für einen zeitlichen Verlauf eignet sich ein Liniendiagramm mit den Monaten auf der X-Achse.'
+      },
+      {
+        id: 'm162-tabellen-theorie', type: 'note', source: 'Teams',
+        title: 'Daten in Tabellen aufbereiten',
+        body: 'Eine Zeile steht für einen Datensatz und jede Spalte für ein Merkmal. Wähle eindeutige Überschriften und einheitliche Einheiten. Sortiere jeweils die gesamte Tabelle, damit die Werte einer Zeile zusammenbleiben.\n\nExcel passt relative Zellbezüge beim Kopieren an. Ein Bezug wie $B$3 bleibt konstant. Bei einem Diagramm zeigen Linien einen Verlauf und Balken eignen sich für den Vergleich von Kategorien.'
       }
     ]
   },
@@ -77,6 +97,11 @@ const starterSubjects = [
         id: 'm117-osi', type: 'card', source: 'Teams',
         title: 'Welche OSI-Schichten deckt WLAN nach IEEE 802.11 ab?',
         body: 'Schicht 1 umfasst die Funkübertragung. Schicht 2 regelt den Medienzugriff und den Austausch von Frames.'
+      },
+      {
+        id: 'm117-wlan-theorie', type: 'note', source: 'Teams',
+        title: 'Funknetz, Access Point und OSI',
+        body: 'Die SSID ist der WLAN-Name. Mehrere Access Points können dieselbe SSID aussenden, haben aber unterschiedliche BSSIDs. Beim Standortwechsel kann ein Client daher zum nächsten Access Point wechseln, während der WLAN-Name gleich bleibt.\n\nTrenne den physischen Funk (OSI 1), die Frames und den Medienzugriff (OSI 2) von der IP-Adressierung (OSI 3).'
       },
       {
         id: 'm117-filius', type: 'note', source: 'Teams',
@@ -106,6 +131,11 @@ const starterSubjects = [
         body: 'Eine Hashfunktion erzeugt aus Daten einen Prüfwert fester Länge. Verschlüsselung schützt Daten so, dass sie mit dem passenden Schlüssel wieder lesbar werden.'
       },
       {
+        id: 'm231-hash-theorie', type: 'note', source: 'Teams',
+        title: 'Prüfwerte und Passwörter',
+        body: 'Ein Hash kann helfen, Veränderungen an einer Datei festzustellen, wenn du den erwarteten Prüfwert aus einer vertrauenswürdigen Quelle hast. Bei der Anmeldung vergleicht ein Dienst das Ergebnis einer Passwortprüfung mit dem gespeicherten Wert. Dafür benutzt man einen eigenen Passwort-Hash mit zufälligem Salt.\n\nPrüfe getrennt: Wer ist angemeldet? Welche Aktion ist erlaubt? Welche Daten sind für den Zweck überhaupt nötig?'
+      },
+      {
         id: 'm231-form', type: 'note', source: 'Eigener BBW-Code',
         title: 'Ein Anmeldeformular nachvollziehen',
         body: 'Zeichne den Ablauf deiner Spring-Anwendung. Wo wird das Formular angezeigt? Wohin werden die Daten gesendet? Welche Antwort erhält der Browser?',
@@ -122,6 +152,11 @@ const starterSubjects = [
         id: 'm293-html-css', type: 'card', source: 'Teams',
         title: 'Was legst du mit HTML fest, und wofür verwendest du CSS?',
         body: 'HTML strukturiert Inhalte und beschreibt ihre Bedeutung, etwa mit Überschriften und Absätzen. CSS bestimmt ihre Darstellung, etwa Abstände, Farben und Layout.'
+      },
+      {
+        id: 'm293-html-theorie', type: 'note', source: 'Teams',
+        title: 'Semantisches HTML und CSS-Layout',
+        body: 'Gliedere eine Seite mit Überschriften, Navigation und Hauptinhalt. Verwende ein button-Element für eine Aktion und einen Link für Navigation. Beschrifte Formularfelder mit label.\n\nCSS selektiert Klassen mit einem Punkt, zum Beispiel .card. Mit Flexbox ordnest du Elemente vor allem entlang einer Achse an. Grid kann Zeilen und Spalten gemeinsam steuern.'
       },
       {
         id: 'm293-next', type: 'card', source: 'Eigener BBW-Code',
@@ -155,6 +190,11 @@ const starterSubjects = [
         id: 'english-vocabulary', type: 'note', source: 'Teams',
         title: 'Food, cooking and personality vocabulary',
         body: 'Write three sentences using chop, boil and bake. Then describe someone using two personality adjectives, such as reliable and curious, and give one example of their behaviour for each adjective.'
+      },
+      {
+        id: 'english-grammar-theory', type: 'note', source: 'Teams',
+        title: 'Present tenses and future forms',
+        body: 'Use the present simple for routines: I cook on Sundays. Use the present continuous for something in progress: I am cooking now.\n\nFor a confirmed arrangement, use the present continuous: I’m meeting Sam at seven. For a prediction based on present evidence, use going to: Look at that pan. It’s going to boil over.'
       }
     ]
   },
@@ -172,6 +212,11 @@ const starterSubjects = [
         id: 'abu-fakten', type: 'card', source: 'Teams',
         title: 'Wie erkennst du in einem Artikel den Unterschied zwischen einer Tatsachenbehauptung und einer Meinung?',
         body: 'Eine Tatsachenbehauptung lässt sich anhand von Quellen prüfen. Eine Meinung drückt eine persönliche Einschätzung oder Wertung aus. Ein Satz kann beides enthalten.'
+      },
+      {
+        id: 'abu-wendungen', type: 'note', source: 'Teams',
+        title: 'Wendungen in eigenen Worten erklären',
+        body: 'Lies zuerst den Satz davor und danach. Ersetze die Wendung mit einer kurzen Erklärung und lies den ganzen Satz nochmals. Beispiel: «Die Diskussion nimmt Fahrt auf» bedeutet, dass sie lebhafter wird oder sich schneller entwickelt. Es geht hier um den Verlauf der Diskussion.'
       }
     ]
   }

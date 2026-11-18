@@ -76,14 +76,14 @@ const iconSvg = id => `<svg viewBox="0 0 24 24" aria-hidden="true">${(Object.has
 const qk = key => key + '.' + cur;
 const questionBank = id => Object.hasOwn(COURSE_QUESTIONS, id) ? COURSE_QUESTIONS[id] : [];
 const quizPool = () => questionBank(cur).filter(question => question.a);
-const BANKS = Object.fromEntries(Object.keys(COURSE_QUESTIONS).map(id => [id, () => ({
+const BANKS = Object.assign(Object.create(null), Object.fromEntries(Object.keys(COURSE_QUESTIONS).map(id => [id, () => ({
   topics: [...new Set(questionBank(id).map(question => question.topic))],
   bank: questionBank(id).map(question => ({
     topic: question.topic,
     key: question.id,
     make: () => makeQuestion(question)
   }))
-})]));
+})])));
 
 function makeQuestion(question) {
   if(question.a) return mcQ(question);
@@ -190,16 +190,24 @@ function safeLink(raw) {
 
 function viewTheory(view, subject) {
   const notes = studyEntries(subject).filter(entry => entry.type === 'note');
+  const completed = workspace().completed;
   view.innerHTML = '<div class="card"><div class="row"><h3>Theorie und Quellen</h3><button class="btn ghost" id="addMaterial">+ Eintrag hinzufügen</button></div></div>'
     + notes.map(entry => {
       const url = safeLink(entry.url);
       return `<article class="card"><div class="meta muted">${esc(entry.source)}</div><h3>${esc(entry.title)}</h3>
-        <p class="study-text">${esc(entry.body)}</p>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Quelle öffnen</a>` : ''}
-        ${entry.subjectId ? `<div class="row"><button class="chip" data-entry-edit="${esc(entry.id)}">Bearbeiten</button></div>` : ''}</article>`;
+        ${entry.body ? `<p class="study-text">${esc(entry.body)}</p>` : ''}${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Quelle öffnen</a>` : ''}
+        <div class="row"><label class="goal"><input type="checkbox" data-read="${esc(entry.id)}"${completed[entry.id] === true ? ' checked' : ''}><span>Gelernt</span></label>
+        ${entry.subjectId ? `<button class="chip" data-entry-edit="${esc(entry.id)}">Bearbeiten</button>` : ''}</div></article>`;
     }).join('');
   $('#addMaterial', view).onclick = () => editEntry(subject);
   view.querySelectorAll('[data-entry-edit]').forEach(button => button.onclick = () =>
     editEntry(subject, personalEntries(subject).find(entry => entry.id === button.dataset.entryEdit)));
+  view.querySelectorAll('[data-read]').forEach(input => input.onchange = () => {
+    const next = workspace();
+    if(input.checked) next.completed[input.dataset.read] = true;
+    else delete next.completed[input.dataset.read];
+    if(!store.set('workspace', next)) input.checked = !input.checked;
+  });
 }
 
 function viewNotes(view, subject) {
@@ -253,8 +261,7 @@ function editSubject(subject) {
   });
 }
 
-function editEntry(subject, entry) {
-  const card = entry?.type === 'card';
+function editEntry(subject, entry, card = entry?.type === 'card') {
   showEditor(entry ? 'Eintrag bearbeiten' : 'Eintrag hinzufügen', `
     <label>${card ? 'Frage' : 'Titel'} <input name="title" required maxlength="180" autofocus value="${esc(entry?.title)}"></label>
     <label>${card ? 'Antwort' : 'Notiz'} <textarea name="body" maxlength="20000"${card ? ' required' : ''}>${esc(entry?.body)}</textarea></label>
@@ -280,8 +287,12 @@ function editEntry(subject, entry) {
 function addPersonalControls(view, subject, entries) {
   const panel = document.createElement('div');
   panel.className = 'card';
-  panel.innerHTML = '<h3>Importierte Lernkarten</h3><ul>' + entries.map(entry =>
-    `<li>${esc(entry.title)} <button class="chip" data-entry-edit="${esc(entry.id)}">Bearbeiten</button></li>`).join('') + '</ul>';
+  panel.innerHTML = '<h3>Eigene Lernkarten mit Quelle</h3><ul>' + entries.map(entry => {
+    const url = safeLink(entry.url);
+    return `<li>${esc(entry.title)} <span class="muted">${esc(entry.source)}</span>
+      ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Quelle öffnen</a>` : ''}
+      <button class="chip" data-entry-edit="${esc(entry.id)}">Bearbeiten</button></li>`;
+  }).join('') + '</ul>';
   panel.querySelectorAll('[data-entry-edit]').forEach(button => button.onclick = () =>
     editEntry(subject, entries.find(entry => entry.id === button.dataset.entryEdit)));
   view.append(panel);
@@ -305,9 +316,11 @@ function viewExercises(view, subject) {
   if(exOpen) return viewExercise(view, subject, exOpen);
   const done = store.get('exercise.' + subject.id, {});
   const wrong = store.get(qk('quizWrong'), []).length;
+  const best = store.get(qk('quizBest'), null);
   view.innerHTML = `<div class="card"><h3>Schnelltest</h3><div class="row"><button class="btn" id="startQuiz">Schnelltest starten</button>
     ${wrong ? '<button class="btn ghost" id="retryQuiz">Fehler üben</button>' : ''}
-    ${subject.id === 'mathe' ? '<button class="btn ghost" id="formulas">Formel-Trainer</button>' : ''}</div></div>`
+    ${subject.id === 'mathe' ? '<button class="btn ghost" id="formulas">Formel-Trainer</button>' : ''}</div>
+    ${best ? `<p class="muted">Bestes Resultat: ${esc(best.score)} von ${esc(best.total)} richtig</p>` : ''}</div>`
     + ptTopics(subject.id).map(topic => `<div class="card"><h3>${esc(topic)}</h3><div class="row">
       ${bank.filter(question => question.topic === topic).map(question =>
         `<button class="chip${done[question.id] ? ' on' : ''}" data-ex="${esc(question.id)}">${esc(question.label)}</button>`).join('')}</div></div>`).join('');

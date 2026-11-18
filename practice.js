@@ -155,7 +155,7 @@ function ptPrognose(s){
     <p class="muted" style="font-size:var(--t-xs);margin-top:var(--s2);font-family:var(--f-ui)">Die Prognose ist eine Schätzung aus deinen Probetests, keine Garantie. Note = 1 + 5 × Punkte ÷ Maximum.</p></div>`;
 }
 
-const PT = {};
+const PT = Object.create(null);
 let ptTimer = null;
 const ptState = sid => PT[sid] || (PT[sid] = {phase:'setup', n:10, time:0, topics:null});
 function ptBindGo(v){ v.querySelectorAll('[data-go]').forEach(b => b.onclick = () => openTab(b.dataset.go)); }
@@ -262,7 +262,7 @@ function viewCards(v, s){
         <button class="btn ghost" id="reset">Alle zurücksetzen</button></div></div>
     <div class="card"><h3>Eigene Karte hinzufügen</h3>
       <div class="grid2"><input type="text" id="front" placeholder="Vorderseite (Frage / Begriff)"><input type="text" id="back" placeholder="Rückseite (Antwort)"></div>
-      <div class="row" style="margin-top:var(--s2)"><button class="btn" id="add">Hinzufügen</button></div>
+      <div class="row" style="margin-top:var(--s2)"><button class="btn" id="add">Hinzufügen</button><button class="btn ghost" id="addCardSource">Mit Quelle hinzufügen</button></div>
       ${own.length?`<h4>Deine Karten (${own.length})</h4><ul>${own.map((c,i) => `<li>${esc(c[0])} → ${esc(c[1])} <button class="chip" data-del="${i}">löschen</button></li>`).join('')}</ul>`:''}</div>`;
   function show(){
     $('#cstat').textContent = `${all.length-queue.length} von ${all.length} Karten gewusst`;
@@ -278,6 +278,7 @@ function viewCards(v, s){
   $('#knew').onclick = () => { if(!queue.length) return; const i=queue[idx%queue.length]; known[all[i][2] || all[i][0]]=1; store.set('known.'+s.id,known); queue=queue.filter(x => x!==i); idx = queue.length ? idx%queue.length : 0; flipped=false; show(); renderSide(); };
   $('#reset').onclick = () => { store.set('known.'+s.id,{}); viewCards(v,s); };
   $('#add').onclick = () => { const a=$('#front').value.trim(), b=$('#back').value.trim(); if(!a||!b) return; own.push([a,b]); store.set('cards.'+s.id,own); viewCards(v,s); renderSide(); };
+  $('#addCardSource').onclick = () => editEntry(s, null, true);
   v.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { own.splice(+b.dataset.del,1); store.set('cards.'+s.id,own); viewCards(v,s); renderSide(); });
   if(personal.length) addPersonalControls(v, s, personal);
   show();
