@@ -1,4 +1,4 @@
-const CACHE = 'lerntool-bbw-v2';
+const CACHE = 'lerntool-bbw-v3';
 const FILES = ['./index.html', './manifest.webmanifest', './styles.css', './subjects.js', './app.js'];
 
 self.addEventListener('install', event => {
