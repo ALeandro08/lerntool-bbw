@@ -1,48 +1,41 @@
 <!doctype html>
 <html lang="de-CH">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f6fa">
-  <meta name="description" content="Fächer, Notizen und Karteikarten für die BBW.">
-  <title>Lerntool BBW</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-  <script src="subjects.js" defer></script>
-  <script src="app.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lerntool">
+<title>Lerntool BBW</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
 </head>
 <body>
-  <a class="skip" href="#main">Zum Inhalt</a>
-  <div class="layout">
-    <aside class="sidebar">
-      <button class="brand" id="home" type="button">
-        <span class="brand-mark" aria-hidden="true">B</span>
-        <span>Lerntool <small>BBW Winterthur</small></span>
-      </button>
-      <nav aria-label="Fächer">
-        <div class="nav-heading"><span>Fächer</span><button class="icon-button" id="add-subject" type="button" aria-label="Fach hinzufügen">+</button></div>
-        <div id="subject-nav"></div>
-      </nav>
-      <p class="privacy">Eigene Einträge und Lernfortschritt bleiben in diesem Browser.</p>
-    </aside>
-
-    <main id="main" tabindex="-1">
-      <div id="view"></div>
-      <p class="status" id="status" role="status"></p>
-      <noscript>Aktiviere JavaScript, um deine Fächer und Lernkarten zu öffnen.</noscript>
-    </main>
-  </div>
-
-  <dialog id="editor" aria-labelledby="editor-title">
-    <form id="edit-form" method="dialog">
-      <h2 id="editor-title"></h2>
-      <div id="fields" class="fields"></div>
-      <p id="form-error" class="error" role="alert"></p>
-      <div class="actions">
-        <button type="button" id="cancel">Abbrechen</button>
-        <button type="submit" class="primary" id="save">Speichern</button>
-      </div>
-    </form>
-  </dialog>
+<div class="app">
+  <aside id="side">
+    <h1>Lerntool BBW</h1>
+    <p class="sub">Berufsbildungsschule Winterthur</p>
+    <div id="subjects"></div>
+    <div class="sidebtns"><button class="themebtn" id="themeBtn">Hell / Dunkel</button>
+      <button class="syncbtn" id="syncBtn" title="Anmelden oder Fortschritt übertragen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></svg><span>Konto / Sync</span></button></div>
+  </aside>
+  <dialog id="syncDlg" class="dlg" aria-labelledby="syncTitle"></dialog>
+  <dialog id="contentDlg" class="dlg" aria-labelledby="contentTitle"></dialog>
+  <main id="main"></main>
+</div>
+<script src="subjects.js"></script>
+<script src="questions.js"></script>
+<script src="app.js"></script>
+<script src="practice.js"></script>
+<script src="grades.js"></script>
+<script src="sync.js"></script>
+<script src="lab.js"></script>
+<script src="start.js"></script>
 </body>
 </html>
