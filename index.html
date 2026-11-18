@@ -1012,12 +1012,13 @@ const ri = (a,b) => a + Math.floor(Math.random()*(b-a+1));
    und im Tool entsprechend gekennzeichnet.
    ===================================================================== */
 const FRA = {
-  chapter:'Prüfung: Leseverstehen · Hörverstehen · Grammaire · Voci · Übersetzung',
+  chapter:'Prüfung 23.11.: Adjektive, Adverbien, Voci «sports et loisirs» · Lesen · Hören · Übersetzung',
   goals:[
     'Les adjectifs: weibliche Form und Mehrzahl bilden (Regeln und Ausnahmen).',
     'Die Stellung der Adjektive kennen und beau, nouveau, vieux vor Vokal richtig schreiben (bel, nouvel, vieil).',
     'Den Komparativ bilden: plus / moins / aussi … que, bei Verben autant que, bei Nomen autant de … que.',
     'Meilleur (Adjektiv) und mieux (Adverb) unterscheiden.',
+    'Adverbien bilden (-ment, -amment, -emment, bien, mal) und richtig stellen; Adjektiv und Adverb unterscheiden.',
     'Den Superlativ bilden: le / la / les plus (moins), le meilleur, le mieux.',
     'Voci «Les sports» mit Artikel (le / la / l’ / les).',
     'Voci «Les loisirs» mit Artikel.',
@@ -1394,6 +1395,68 @@ const fzVocEx = (cat, dir, id, title) => ({id, title, page:'Unterlagen «loisirs
     : {p:fzLab(it), t:'__', short:true, a:[fzDe(it[1])]})});
 const fzMcEx = (r, page, extra) => Object.assign({id:r.id, title:r.title, page, type:'fzmc', text:r.text, gloss:r.gloss, say:r.say, script:r.script, qs:r.qs}, extra||{});
 
+// Adverbien (Thema «4. les adverbes» und «Traduction - Adj. Adv.» im Kursnotizbuch), selbst geschrieben
+const FZ_D1 = [
+  {t:'lent → __', a:[['lentement']], x:'lente + ment. Merke: lent ist eine Ausnahme zur -ent-Regel.'},
+  {t:'heureux → __', a:[['heureusement']], x:'weibliche Form heureuse + ment.'},
+  {t:'sérieux → __', a:[['sérieusement']]},
+  {t:'doux → __', a:[['doucement']], x:'douce + ment.'},
+  {t:'complet → __', a:[['complètement']], x:'complète + ment.'},
+  {t:'facile → __', a:[['facilement']], x:'Endet schon auf -e: einfach -ment anhängen.'},
+  {t:'rapide → __', a:[['rapidement']]},
+  {t:'vrai → __', a:[['vraiment']], x:'Endet auf einen Vokal: männliche Form + ment.'},
+  {t:'poli → __', a:[['poliment']]},
+  {t:'absolu → __', a:[['absolument']]},
+  {t:'constant → __', a:[['constamment']], x:'-ant wird zu -amment.'},
+  {t:'courant → __', a:[['couramment']]},
+  {t:'élégant → __', a:[['élégamment']]},
+  {t:'évident → __', a:[['évidemment']], x:'-ent wird zu -emment (gesprochen wie -amment).'},
+  {t:'prudent → __', a:[['prudemment']]},
+  {t:'récent → __', a:[['récemment']]},
+  {t:'patient → __', a:[['patiemment']]},
+  {t:'bon → __', a:[['bien']], x:'Unregelmässig.'},
+  {t:'mauvais → __', a:[['mal']], x:'Unregelmässig.'},
+  {t:'gentil → __', a:[['gentiment']], x:'Unregelmässig.'},
+  {t:'bref → __', a:[['brièvement']], x:'Unregelmässig.'},
+  {t:'énorme → __', a:[['énormément']], x:'Unregelmässig: -ément.'},
+  {t:'précis → __', a:[['précisément']], x:'Unregelmässig: -ément.'}
+];
+const FZ_D2 = [
+  {t:'Marc est __. Il travaille __.', h:'(sérieux)', a:[['sérieux'], ['sérieusement']], x:'Adjektiv beschreibt Marc, Adverb beschreibt travaille.'},
+  {t:'Julie est une fille __. Elle répond __.', h:'(poli)', a:[['polie'], ['poliment']]},
+  {t:'Le train est __. Il roule __.', h:'(rapide)', a:[['rapide'], ['rapidement']]},
+  {t:'Ma grand-mère est __. Elle marche __.', h:'(lent)', a:[['lente'], ['lentement']]},
+  {t:'Les enfants sont __. Ils attendent __.', h:'(patient)', a:[['patients'], ['patiemment']]},
+  {t:'C’est une réponse __. Il a répondu __.', h:'(précis)', a:[['précise'], ['précisément']]},
+  {t:'Nos voisins sont __. Ils nous parlent __.', h:'(gentil)', a:[['gentils'], ['gentiment']]},
+  {t:'Paul parle anglais __.', h:'(courant)', a:[['couramment']]},
+  {t:'Cette musique est __. Elle chante __.', h:'(doux)', a:[['douce'], ['doucement']]}
+];
+const FZ_D3 = [
+  {t:'Ce gâteau est très __ ! Tu cuisines vraiment __.', a:[['bon'], ['bien']], x:'bon beschreibt den Kuchen (Nomen), bien beschreibt cuisines (Verb).'},
+  {t:'Il a eu une __ note, il a __ dormi.', a:[['mauvaise'], ['mal']]},
+  {t:'Léa joue __ au tennis que moi.', a:[['mieux']], x:'Komparativ von bien (Verb jouer) ist mieux.'},
+  {t:'Ce film est __ que l’autre.', a:[['meilleur']], x:'Komparativ von bon (Nomen film) ist meilleur.'},
+  {t:'C’est Tom qui chante __ de la classe.', a:[['le mieux']], x:'Superlativ des Adverbs: le mieux.'},
+  {t:'Ma sœur court __ vite __ moi.', h:'(+)', a:[['plus'], ['que']]},
+  {t:'Il parle __ lentement __ son père.', h:'(=)', a:[['aussi'], ['que']]}
+];
+const FZ_D4 = [
+  {t:'__', p:'Il a mangé. (bien)', a:[['Il a bien mangé.']], x:'Kurze Adverbien wie bien, mal, déjà, souvent stehen im passé composé zwischen Hilfsverb und Partizip.'},
+  {t:'__', p:'Nous avons travaillé. (beaucoup)', a:[['Nous avons beaucoup travaillé.']]},
+  {t:'__', p:'Elle a fini ses devoirs. (déjà)', a:[['Elle a déjà fini ses devoirs.']]},
+  {t:'__', p:'Ils ont parlé. (lentement)', a:[['Ils ont parlé lentement.']], x:'Lange Adverbien auf -ment stehen meist nach dem Partizip.'},
+  {t:'__', p:'Tu joues au foot. (souvent)', a:[['Tu joues souvent au foot.']], x:'Im Präsens steht das Adverb direkt nach dem Verb.'}
+];
+const FZ_TRADV = [
+  ['Er spricht langsam.', ['Il parle lentement.']],
+  ['Sie spielt sehr gut Gitarre.', ['Elle joue très bien de la guitare.']],
+  ['Wir sind schnell nach Hause gegangen.', ['Nous sommes rentrés rapidement à la maison.','Nous sommes rentrées rapidement à la maison.','Nous sommes allés rapidement à la maison.','Nous sommes rentrés vite à la maison.']],
+  ['Ich spreche fliessend Französisch.', ['Je parle couramment français.','Je parle couramment le français.']],
+  ['Natürlich komme ich mit!', ['Évidemment, je viens avec toi !','Evidemment, je viens avec toi !','Bien sûr, je viens avec toi !']],
+  ['Mein Bruder läuft schneller als ich.', ['Mon frère court plus vite que moi.']],
+  ['Er hat schlecht geschlafen.', ['Il a mal dormi.']]
+];
 const FRA_EX = [
   {id:'fzp1', head:'Probeprüfung Grammaire (so sieht die Prüfung aus)', title:'Comparatif et superlatif: 20 Sätze', page:'Probeprüfung «ex. comp.superl.»', type:'fzfill',
    intro:'Complétez les phrases suivantes par le comparatif ou le superlatif. (+) mehr · (–) weniger · (=) gleich · (++) Superlativ', rows:FZ_P1},
@@ -1432,6 +1495,10 @@ const FRA_EX = [
   fzVocEx('lieux','fr2de','fzv6','Les lieux de loisirs: Französisch → Deutsch'),
   fzVocEx('verbes','de2fr','fzv7','Verbes utiles: Deutsch → Französisch'),
   fzVocEx('verbes','fr2de','fzv8','Verbes utiles: Französisch → Deutsch'),
+  {id:'fzd1', head:'Les adverbes', title:'Das Adverb bilden', page:'Zusatz, selbst geschrieben (Thema «4. les adverbes»)', type:'fzfill', intro:'Bilde aus dem Adjektiv das Adverb.', rows:FZ_D1},
+  {id:'fzd2', title:'Adjektiv oder Adverb?', page:'Zusatz, selbst geschrieben', type:'fzfill', intro:'Setze das Wort in Klammern als Adjektiv (angepasst) oder als Adverb ein.', rows:FZ_D2},
+  {id:'fzd3', title:'Bon / bien, mauvais / mal, meilleur / mieux', page:'Zusatz, selbst geschrieben', type:'fzfill', intro:'Complétez. Bei (+) und (=) mit dem Adverb vergleichen.', rows:FZ_D3},
+  {id:'fzd4', title:'Wo steht das Adverb?', page:'Zusatz, selbst geschrieben', type:'fzfill', intro:'Schreibe den ganzen Satz mit dem Adverb an der richtigen Stelle.', rows:FZ_D4},
   {id:'fzv9', title:'Jouer au / du / de la / aux', page:'Zusatz, selbst geschrieben', type:'fzfill', intro:'Sportart oder Spiel: jouer à + Artikel (au, aux). Instrument: jouer de + Artikel (du, de la).', rows:FZ_JOUER},
   {id:'fzv10', title:'Faire du / de la / de l’ / des', page:'Zusatz, selbst geschrieben', type:'fzfill', intro:'Setze den richtigen Teilungsartikel ein.', rows:FZ_FAIRE},
 
@@ -1564,7 +1631,7 @@ function fzPushRows(B, rows, topic, key, intro){
         ans:r.a[k], near:r.near && r.near[k], x:r.x ? esc(r.x) : ''}; }}); });
 }
 function bankFRA(){
-  const T = {a:'Adjektive', v:'Vergleich & Superlativ', w:'Voci', u:'Übersetzung', l:'Leseverstehen', h:'Hörverstehen'};
+  const T = {a:'Adjektive', d:'Adverbien', v:'Vergleich & Superlativ', w:'Voci', u:'Übersetzung', l:'Leseverstehen', h:'Hörverstehen'};
   const B = [];
   FRA_QUIZ_BASE.forEach((q,i) => B.push({topic:q.t, key:'q'+i, make:() => mcQ(q)}));
   // Adjektive
@@ -1576,6 +1643,12 @@ function bankFRA(){
   fzPushRows(B, FZ_VNB, T.a, 'vnb', 'Wähle die richtige Form von vieux, beau oder nouveau.');
   fzPushRows(B, FZ_MODEL, T.a, 'mod', 'Antworte nach dem Modell «Cette maison est jolie.» → «Oui, c’est une jolie maison.»');
   fzPushRows(B, FZ_PLACE, T.a, 'plc', 'Stelle die Adjektive richtig und passe sie an.');
+  // Adverbien
+  fzPushRows(B, FZ_D1, T.d, 'd1_', 'Bilde das Adverb.');
+  fzPushRows(B, FZ_D2, T.d, 'd2_', 'Adjektiv (angepasst) oder Adverb?');
+  fzPushRows(B, FZ_D3, T.d, 'd3_', 'bon / bien, mauvais / mal, meilleur / mieux');
+  fzPushRows(B, FZ_D4, T.d, 'd4_', 'Schreibe den Satz mit dem Adverb an der richtigen Stelle.');
+  FZ_TRADV.forEach((r,i) => B.push({topic:T.u, key:'tra'+i, make:() => ({kind:'text', prompt:'Übersetze ins Französische:<br><b>' + esc(r[0]) + '</b>', ans:r[1], x:''})}));
   // Vergleich und Superlativ
   fzPushRows(B, FZ_P1, T.v, 'p1_', 'Complétez par le comparatif ou le superlatif.');
   fzPushRows(B, FZ_P2, T.v, 'p2_', 'Complétez par l’expression correcte (aussi / autant / autant de).');
@@ -1622,8 +1695,9 @@ function fzSim(){
 
 
 /* ---------- Übersicht ---------- */
+const BZ_EXAM = '2026-11-23';   // laut Kursnotizbuch «06 examen»: Adj. / Adv. + voci, zählt 1.0
 function viewFRAOverview(v){
-  const g = store.get('bz.goals',{}), date = store.get('bz.date',''), n = FRA.goals.filter((_,i) => g[i]).length, d = examDays({id:'bz'});
+  const g = store.get('bz.goals',{}), date = store.get('bz.date',BZ_EXAM), n = FRA.goals.filter((_,i) => g[i]).length, d = examDays({id:'bz'});
   const big = d===null ? '' : d>0 ? `<div class="big">${d}</div><div><h3 style="margin:0">Tag${d===1?'':'e'} bis zur Französisch-Prüfung</h3><p class="muted" style="margin:var(--s1) 0 0">${pDate(date).toLocaleDateString('de-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div>`
     : d===0 ? '<div class="big">0</div><h3>Heute ist die Prüfung. Viel Erfolg !</h3>' : '<div class="big">–</div><h3>Die Prüfung ist vorbei</h3>';
   const ch = (id, label) => `<button class="chip" data-ex="${id}">${esc(label)}</button>`;
@@ -1753,6 +1827,22 @@ function fzTheory(){
     <li>Steht das Adjektiv <b>nach</b> dem Nomen, wird der Artikel wiederholt: <i>les prix les plus bas, l’appartement le moins moderne</i>.</li>
     <li>Adverbien bleiben immer gleich: <i>Max s’entraîne le moins, Nicolas s’entraîne le plus. Elle comprend le mieux le français.</i></li>
     <li>«von / in» heisst <i>de</i>: <i>le plus gros des Gaulois, le meilleur élève de sa classe, la ville la plus grande de France</i>.</li></ul>`},
+  {t:'Les adverbes: Bildung', h:`
+    <p>Ein <b>Adjektiv</b> beschreibt ein Nomen und passt sich an: <i>Elle est lente.</i> Ein <b>Adverb</b> beschreibt ein Verb, ein Adjektiv oder einen ganzen Satz und ist <b>unveränderlich</b>: <i>Elle marche lentement.</i></p>
+    <table><tr><th>Regel</th><th>Beispiele</th></tr>
+      <tr><td>weibliche Form des Adjektivs + <b>-ment</b></td><td>lent → lente → lentement · heureux → heureusement · complet → complètement · doux → doucement</td></tr>
+      <tr><td>Adjektiv endet auf <b>-e</b>: nur -ment</td><td>facile → facilement · rapide → rapidement · probable → probablement</td></tr>
+      <tr><td>Adjektiv endet auf einen <b>Vokal</b>: männliche Form + -ment</td><td>vrai → vraiment · poli → poliment · absolu → absolument</td></tr>
+      <tr><td><b>-ant → -amment</b></td><td>constant → constamment · courant → couramment · élégant → élégamment</td></tr>
+      <tr><td><b>-ent → -emment</b> (gesprochen wie «-amment»)</td><td>évident → évidemment · prudent → prudemment · récent → récemment · patient → patiemment</td></tr>
+      <tr><td><b>unregelmässig</b></td><td>bon → bien · mauvais → mal · gentil → gentiment · bref → brièvement · énorme → énormément · précis → précisément</td></tr></table>
+    <p class="muted">Ausnahme: lent → lentement (nicht «lemment»).</p>`},
+  {t:'Les adverbes: Stellung und Vergleich', h:`
+    <ul><li><b>Präsens:</b> direkt nach dem Verb. <i>Tu joues souvent au foot. Il parle lentement.</i></li>
+      <li><b>Passé composé:</b> kurze Adverbien (bien, mal, beaucoup, déjà, souvent, toujours, trop) zwischen Hilfsverb und Partizip: <i>Il a bien mangé.</i> Lange -ment-Adverbien meist nach dem Partizip: <i>Ils ont parlé lentement.</i></li>
+      <li><b>Vergleich:</b> plus / moins / aussi + Adverb + que: <i>Ma sœur court plus vite que moi.</i></li>
+      <li><b>bien → mieux → le mieux</b> (Adverb, beim Verb) · <b>bon → meilleur → le meilleur</b> (Adjektiv, beim Nomen): <i>Tu cuisines bien, ton gâteau est bon.</i></li></ul>
+    <p class="fzhint"><b>Eselsbrücke:</b> Wie? → Adverb (Il chante <i>bien</i>). Was für ein? → Adjektiv (une <i>bonne</i> chanson).</p>`},
   {t:'Voci: Les sports', h:fzVocTable('sport')},
   {t:'Voci: Les loisirs', h:fzVocTable('loisirs')},
   {t:'Voci: Les lieux de loisirs', h:fzVocTable('lieux')},
@@ -2929,7 +3019,7 @@ function bankBN(){
   addCardQs(B, BN.cards, CH_T.b);
   return {topics:Object.values(CH_T), bank:B};
 }
-function examDays(s){ const k = s.id==='bz' ? 'bz.date' : s.id==='bn' ? 'bn.date' : null; const d = k && store.get(k, k==='bn.date' ? BN_EXAM : ''); if(!d) return null; const t = new Date(); t.setHours(0,0,0,0); return Math.round((pDate(d)-t)/86400000); }
+function examDays(s){ const k = s.id==='bz' ? 'bz.date' : s.id==='bn' ? 'bn.date' : null; const d = k && store.get(k, k==='bn.date' ? BN_EXAM : k==='bz.date' ? BZ_EXAM : ''); if(!d) return null; const t = new Date(); t.setHours(0,0,0,0); return Math.round((pDate(d)-t)/86400000); }
 const goLab = sec => { LAB.sec = sec; tab = 'lab'; store.set('tab',tab); exOpen = null; render(); window.scrollTo(0,0); };
 const BN_EXAM = '2026-11-09';   // laut Teams, kann im Feld geändert werden
 function viewBNOverview(v){
@@ -6567,9 +6657,10 @@ const G_EXAMS = [
   {s:'bm', d:'2026-09-07', t:'Prüfung Mathematik', info:''},
   {s:'bg', d:'2026-09-28', t:'Prüfung Dossier Aufklärung', info:''},
   {s:'bw', d:'2026-11-02', t:'Prüfung Kapitel 1', info:'online'},
-  {s:'bn', d:'2026-11-09', t:'Prüfung Chemie', info:'nicht grafikfähiger Taschenrechner'}
+  {s:'bn', d:'2026-11-09', t:'Prüfung Chemie', info:'nicht grafikfähiger Taschenrechner'},
+  {s:'bz', d:'2026-11-23', t:'Prüfung Adj. / Adv. + Voci', info:'Leseverstehen, Hörverstehen, Grammaire, Voci, Übersetzung, zählt 1.0'}
 ];
-const G_NODATE = [['bw','Wirtschaft und Recht: Kapitel 2 «Unternehmensmodell und Strategie»: Dossier im Team, Termin noch offen'], ['bz','Französisch: Prüfung mit Leseverstehen, Hörverstehen, Grammaire, Voci und Übersetzung, Datum noch nicht bekannt (im Lerntool unter Französisch eintragbar)'], ['bg','Geschichte und Politik: kein neuer Termin']];   // zählen zum Gesamtschnitt der Berufsmaturität
+const G_NODATE = [['bw','Wirtschaft und Recht: Kapitel 2 «Unternehmensmodell und Strategie»: Dossier im Team, Termin noch offen'], ['bg','Geschichte und Politik: kein neuer Termin']];   // zählen zum Gesamtschnitt der Berufsmaturität
 const G_SVG = {
   edit:'<path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/>',
   del:'<path d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
